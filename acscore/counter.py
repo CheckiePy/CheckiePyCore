@@ -1,5 +1,6 @@
 import os
-import metrics
+
+from . import metrics
 
 
 class Counter:

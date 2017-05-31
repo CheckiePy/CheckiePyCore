@@ -1,6 +1,7 @@
 import sys
 import os
-import counter
+
+from . import counter
 
 
 def main():

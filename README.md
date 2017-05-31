@@ -16,6 +16,50 @@ source venv/bin/activate
 pip3 install -r requirements.txt
 ```
 
+### How to use
+
+```
+python3 main.py <path to file or directory>
+```
+
+### Implemented metrics
+
+* File length (in lines)
+
+### Report format
+
+```
+{
+    "metric_name1":
+    {
+        "metric_value1": count_of_occurences,
+        "metric_value2": ...,
+        ...
+    },
+    "metric_name2":
+    {
+        ...
+    },
+    ...
+}
+```
+
+### Metric implementation notes
+
+* Metrics should be implemented as functions with the only parameter (path to file)
+
+* Metric functions should be placed in metrics.py file
+
+* Metric function should return an output in next format:
+
+```
+{
+    "metric_value1": count_of_occurences,
+    "metric_value2": ...,
+    ...
+}
+```
+
 ## License
 
 The MIT License (MIT) Copyright (c) 2017 Artem Ustimov

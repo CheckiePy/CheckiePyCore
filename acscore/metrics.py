@@ -3,9 +3,114 @@ import ast
 
 IMPLEMENTED_METRICS = [
     'file_length',
+    'function_name_case',
 ]
 
-INF=99999
+INF = 99999
+
+
+def file_length(file, verbose=False):
+    """ Number of lines in file. Verbose version doesn't require specific logic. """
+    i = 0
+    with open(file) as f:
+        for i, _ in enumerate(f, 1):
+            pass
+    return {i: 1}
+
+
+def function_name_case(file, verbose=False):
+    """ Number of underscored and camel cased names of functions in file. """
+    with open(file) as f:
+        root = ast.parse(f.read())
+        names = [(node.name, node.lineno) for node in ast.walk(root) if isinstance(node, ast.FunctionDef)]
+        underscore_count = 0
+        underscore_lines = []
+        camelcase_count = 0
+        camelcase_lines = []
+        other_count = 0
+        other_lines = []
+        for name, line in names:
+            # Underscored or in camel case with underscore (i.e. "other")
+            if '_' in name:
+                if any(ch.isupper() for ch in name):
+                    other_count += 1
+                    other_lines.append(line)
+                else:
+                    underscore_count += 1
+                    underscore_lines.append(line)
+            # In camel case
+            elif any(ch.isupper() for ch in name):
+                camelcase_count += 1
+                camelcase_lines.append(line)
+            # One word without underscores and capital letters
+            else:
+                underscore_count += 1
+                underscore_lines.append(line)
+                camelcase_count += 1
+                camelcase_lines.append(line)
+    result = {
+        'underscore': underscore_count,
+        'camelcase': camelcase_count,
+        'other': other_count,
+    }
+    if verbose:
+        result['underscore'] = {
+            'count': underscore_count,
+            'lines': underscore_lines,
+        }
+        result['camelcase'] = {
+            'count': camelcase_count,
+            'lines': camelcase_lines,
+        }
+        result['other'] = {
+            'count': other_count,
+            'lines': other_lines,
+        }
+    return result
+
+
+# Todo: incorrect
+def name_case(file, verbose=False):
+    """ Number of underscored and camel cased names in file. """
+    with open(file) as f:
+        root = ast.parse(f.read())
+        print('***', list(ast.walk(root)), '***')
+        names = sorted({(node.id, node.lineno) for node in ast.walk(root) if isinstance(node, ast.Name)})
+        #names = sorted({node.id for node in ast.walk(root) if isinstance(node, ast.Name)})
+        underscore = 0
+        underscore_lines = []
+        camelcase = 0
+        camelcase_lines = []
+        #for name in names:
+        for name, line in names:
+            if name in ['False', 'True', 'None']:
+                continue
+            if name.isupper():
+                continue
+            for character in name:
+                if character is '_':
+                    underscore += 1
+                    underscore_lines.append((name, line))
+                    #underscore_lines.append(name)
+                    break
+                if character.isupper():
+                    camelcase += 1
+                    camelcase_lines.append((name, line))
+                    #camelcase_lines.append(name)
+    result = {
+        'underscore': underscore,
+        'camelcase': camelcase
+    }
+    if verbose:
+        result['underscore'] = {
+            'count': underscore,
+            'lines': underscore_lines,
+        }
+        result['camelcase'] = {
+            'count': camelcase,
+            'lines': camelcase_lines,
+        }
+    return result
 
 
 def count_spaces(string):
@@ -21,15 +126,6 @@ def count_spaces(string):
 def count_strings(file):
     lines = sum(1 for line in file)
     return lines
-
-
-def file_length(file, verbose=False):
-    """ Number of lines in file. Verbose version doesn't require specific logic. """
-    i = 0
-    with open(file) as f:
-        for i, _ in enumerate(f, 1):
-            pass
-    return {i: 1}
 
 
 def function_count(file):
@@ -155,30 +251,6 @@ def count_loop_nesting(file):
                     j += 1
     print(max_nests)
     return { max_nests: 1 }
-
-
-def analyze_names(file):
-    with open(file) as f:
-        root = ast.parse(f.read())
-        names = sorted({node.id for node in ast.walk(root) if isinstance(node, ast.Name)})
-        underscore = 0
-        camelcase = 0
-        for i in names:
-            if i in ["False", "True", "None"]:
-                continue
-            if i.isupper():
-                continue
-            for j in i:
-                if j is "_":
-                    underscore += 1
-                   # print "under"
-                    break
-                if j.isupper():
-                    #print "camel"
-                    camelcase += 1
-    print(underscore, camelcase)
-    return { "underscore": underscore,
-             "camelcase": camelcase }
 
 
 # Todo: redefenition (look at first function)

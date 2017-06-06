@@ -4,21 +4,15 @@ from . import metrics
 
 
 class Counter:
+    configuration = metrics.IMPLEMENTED_METRICS
 
-    configuration = [
-        'file_length',
-        'indent',
-        'method_count',
-        'method_length',
-    ]
-
-    def metrics_for_file(self, file, configuration=None):
+    def metrics_for_file(self, file, configuration=None, verbose=False):
         if not configuration:
             configuration = self.configuration
         calculated = {}
         for metric_name in configuration:
             metric_function = getattr(metrics, metric_name)
-            calculated[metric_name] = metric_function(file)
+            calculated[metric_name] = metric_function(file, verbose)
         return calculated
 
     def merge_metrics(self, dst, src):

@@ -1,6 +1,9 @@
 import re
 import ast
 
+IMPLEMENTED_METRICS = [
+    'file_length',
+]
 
 INF=99999
 
@@ -8,7 +11,7 @@ INF=99999
 def count_spaces(string):
     count = 0
     for i in string:
-        if (i != ' '):
+        if i != ' ':
             continue
         else:
             count += 1
@@ -20,7 +23,8 @@ def count_strings(file):
     return lines
 
 
-def file_length(file):
+def file_length(file, verbose=False):
+    """ Number of lines in file. Verbose version doesn't require specific logic. """
     i = 0
     with open(file) as f:
         for i, _ in enumerate(f, 1):
@@ -34,7 +38,7 @@ def function_count(file):
         result = True
         for i in file:
             result = re.match(r'[ ]*def ', i)
-            if (result is not None):
+            if result is not None:
                 func_amount += 1
     return {func_amount: 1}
 
@@ -50,19 +54,19 @@ def function_length(file):
             #print(i)
             result = re.match(r'[ ]*def', i)
             #print(result)
-            if (inside == True):
+            if inside == True:
                 string_count += 1
-            if ((result is not None) and (inside == True)):
+            if (result is not None) and (inside is True):
                 lengths_of_func[name] = string_count
                 string_count = 0
                 inside = False
-            if ((result is not None) and (inside == False)):
+            if (result is not None) and (inside is False):
                 name = re.search('(?<=def )\w+\(.*\)', i)
                 #(name)
                 string_count = 0
                 inside = True
             result2 = re.match(r'[a-z]|[A-Z]', i)
-            if ((result2 is not None) and (result is None) and (inside == True)):
+            if (result2 is not None) and (result is None) and (inside is True):
                 lengths_of_func[name] = string_count
                 string_count = 0
                 inside = False
@@ -82,11 +86,10 @@ def classes_count(file):
         result = True
         for i in f:
             result = re.match(r'[ ]*class ', i)
-            if (result is not None):
+            if result is not None:
                 classes_amount += 1
     print(classes_amount)
     return {classes_amount: 1}
-
 
 
 def count_loop_nesting(file):
@@ -101,10 +104,10 @@ def count_loop_nesting(file):
             if not x: break
             num_str += 1
             result1 = re.search(r'^[ ]*for', x)
-            if (result1 is not None):
+            if result1 is not None:
                 begin.append(num_str)
             result2 = re.search(r'^[ ]*while', x)
-            if (result2 is not None):
+            if result2 is not None:
                 begin.append(num_str)
             #print num_str
         #print begin
@@ -124,7 +127,7 @@ def count_loop_nesting(file):
         for i in begin:
             #print i
             for j in range(i+1, num_str):
-                if (num_spaces[j] <= num_spaces[i]):
+                if num_spaces[j] <= num_spaces[i]:
                     #print j
                     end.append(j)
                     break
@@ -139,7 +142,7 @@ def count_loop_nesting(file):
         begin.append(INF)
         i = 0
         j = 0
-        while ((begin[i] != 99999) and (end[j] != 99999)):
+        while (begin[i] != 99999) and (end[j] != 99999):
                 #print begin[i]
                 #print end[j]
                 if begin[i] < end[j]:
@@ -178,6 +181,7 @@ def analyze_names(file):
              "camelcase": camelcase }
 
 
+# Todo: redefenition (look at first function)
 def count_spaces(file):
     with open(file) as f:
         count = 0

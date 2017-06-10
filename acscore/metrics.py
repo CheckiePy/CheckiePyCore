@@ -2,71 +2,85 @@ import re
 import ast
 
 IMPLEMENTED_METRICS = [
-    'file_length',
-    'function_name_case',
+    'FileLength',
+    'FunctionNameCase',
 ]
 
 INF = 99999
 
 
-def file_length(file, verbose=False):
+class FileLength:
     """ Number of lines in file. Verbose version doesn't require specific logic. """
-    i = 0
-    with open(file) as f:
-        for i, _ in enumerate(f, 1):
-            pass
-    return {i: 1}
+    def count(self, file, verbose=False):
+        i = 0
+        with open(file) as f:
+            for i, _ in enumerate(f, 1):
+                pass
+        return {i: 1}
+
+    def discretize(self, values):
+        pass
+
+    def inspect(self, discrete, values):
+        pass
 
 
-def function_name_case(file, verbose=False):
+class FunctionNameCase:
     """ Number of underscored and camel cased names of functions in file. """
-    with open(file) as f:
-        root = ast.parse(f.read())
-        names = [(node.name, node.lineno) for node in ast.walk(root) if isinstance(node, ast.FunctionDef)]
-        underscore_count = 0
-        underscore_lines = []
-        camelcase_count = 0
-        camelcase_lines = []
-        other_count = 0
-        other_lines = []
-        for name, line in names:
-            # Underscored or in camel case with underscore (i.e. "other")
-            if '_' in name:
-                if any(ch.isupper() for ch in name):
-                    other_count += 1
-                    other_lines.append(line)
+    def count(self, file, verbose=False):
+        with open(file) as f:
+            root = ast.parse(f.read())
+            names = [(node.name, node.lineno) for node in ast.walk(root) if isinstance(node, ast.FunctionDef)]
+            underscore_count = 0
+            underscore_lines = []
+            camelcase_count = 0
+            camelcase_lines = []
+            other_count = 0
+            other_lines = []
+            for name, line in names:
+                # Underscored or in camel case with underscore (i.e. "other")
+                if '_' in name:
+                    if any(ch.isupper() for ch in name):
+                        other_count += 1
+                        other_lines.append(line)
+                    else:
+                        underscore_count += 1
+                        underscore_lines.append(line)
+                # In camel case
+                elif any(ch.isupper() for ch in name):
+                    camelcase_count += 1
+                    camelcase_lines.append(line)
+                # One word without underscores and capital letters
                 else:
                     underscore_count += 1
                     underscore_lines.append(line)
-            # In camel case
-            elif any(ch.isupper() for ch in name):
-                camelcase_count += 1
-                camelcase_lines.append(line)
-            # One word without underscores and capital letters
-            else:
-                underscore_count += 1
-                underscore_lines.append(line)
-                camelcase_count += 1
-                camelcase_lines.append(line)
-    result = {
-        'underscore': underscore_count,
-        'camelcase': camelcase_count,
-        'other': other_count,
-    }
-    if verbose:
-        result['underscore'] = {
-            'count': underscore_count,
-            'lines': underscore_lines,
+                    camelcase_count += 1
+                    camelcase_lines.append(line)
+        result = {
+            'underscore': underscore_count,
+            'camelcase': camelcase_count,
+            'other': other_count,
         }
-        result['camelcase'] = {
-            'count': camelcase_count,
-            'lines': camelcase_lines,
-        }
-        result['other'] = {
-            'count': other_count,
-            'lines': other_lines,
-        }
-    return result
+        if verbose:
+            result['underscore'] = {
+                'count': underscore_count,
+                'lines': underscore_lines,
+            }
+            result['camelcase'] = {
+                'count': camelcase_count,
+                'lines': camelcase_lines,
+            }
+            result['other'] = {
+                'count': other_count,
+                'lines': other_lines,
+            }
+        return result
+
+    def discretize(self, values):
+        pass
+
+    def inspect(self, discrete, values):
+        pass
 
 
 # Todo: incorrect

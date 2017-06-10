@@ -2,11 +2,11 @@
 
 ## Getting started
 
-### Prerequisites
+### 1. Prerequisites
 
 * Python 3.5
 
-### Setup
+### 2. Setup
 
 ```
 git clone https://github.com/acsproj/acscore.git
@@ -16,17 +16,24 @@ source venv/bin/activate
 pip3 install -r requirements.txt
 ```
 
-### How to use
+### 3. How to use
+
+#### 3.1. From command line
 
 ```
 python3 main.py <path to file or directory>
 ```
 
-### Implemented metrics
+#### 3.2. From code
 
-* File length (in lines)
+* TODO
 
-### Report format
+### 4. Implemented metrics
+
+* FileLength
+* FunctionNameCase
+
+### 5. Report format
 
 ```
 {
@@ -44,16 +51,54 @@ python3 main.py <path to file or directory>
 }
 ```
 
-### Metric implementation notes
+### 6. Metric implementation notes
 
-* Metrics should be implemented as functions with two parameters:
+#### 6.1. Structure
 
-     * path to file;
-     * verbose flag.
+Metrics should be implemented as class with three methods:
 
-* Metric functions should be placed in metrics.py file
+```python
+class MetricName:
+    """ Metric meaning. """
+    def count(self, file, verbose=False):
+        """
+        Method to count this metric in file.
+        Verbose flag specified if lines are needed. 
+        """
+        pass
 
-* Metric function should return an output in next format (non verbose):
+    def discretize(self, values):
+        """
+        Some metric may have very wide range (continuous).
+        For instance, it can be file length in lines.
+        Metric values like this should be discretized
+        up to 10 different values.
+        """
+        pass
+
+    def inspect(self, discrete, values):
+        """
+        This method compares counted metrics for file
+        (values param) with discrete values for this
+        metric (discrete param) and returns inspection
+        messages with line number of code style violation.
+        Values to this method should be passed in verbose
+        format.
+        """
+        pass
+```
+
+#### 6.2. Placing
+
+* Metric class should be placed in metrics.py file.
+
+* Class name of implemeted metric should be added to IMPLEMENTED_METRICS dictionary.
+
+#### 6.3. Output
+
+##### 6.3.1. Count method
+
+* Count method should return an output in next format (non verbose):
 
 ```
 {
@@ -76,7 +121,15 @@ and in verbose format:
 }
 ```
 
-## License
+##### 6.3.2. Discretize method
+
+* TODO
+
+##### 6.3.3. Inspect method
+
+* TODO
+
+# License
 
 The MIT License (MIT) Copyright (c) 2017 Artem Ustimov, Marina Belyanova
 

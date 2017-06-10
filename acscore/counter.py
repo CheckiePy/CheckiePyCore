@@ -11,8 +11,9 @@ class Counter:
             configuration = self.configuration
         calculated = {}
         for metric_name in configuration:
-            metric_function = getattr(metrics, metric_name)
-            calculated[metric_name] = metric_function(file, verbose)
+            metric_class = getattr(metrics, metric_name)
+            metric_instance = metric_class()
+            calculated[metric_name] = metric_instance.count(file, verbose)
         return calculated
 
     def merge_metrics(self, dst, src):

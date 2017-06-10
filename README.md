@@ -28,6 +28,12 @@ python3 main.py <path to file or directory>
 
 * TODO
 
+#### 3.3. Run tests
+
+```
+python3 test.py
+```
+
 ### 4. Implemented metrics
 
 * FileLength

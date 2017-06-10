@@ -10,6 +10,43 @@ INF = 99999
 
 
 class FileLength:
+    discrete_groups = [
+        {
+            'name': 'From0To40',
+            'from': 0,
+            'to': 40,
+        },
+        {
+            'name': 'From41To200',
+            'from': 41,
+            'to': 200,
+        },
+        {
+            'name': 'From201To600',
+            'from': 201,
+            'to': 600,
+        },
+        {
+            'name': 'From601To1500',
+            'from': 601,
+            'to': 1500,
+        },
+        {
+            'name': 'From1501To5000',
+            'from': 1501,
+            'to': 5000,
+        },
+        {
+            'name': 'From5000ToInf',
+            'from': 5000,
+            'to': INF,
+        },
+    ]
+    inspections = {
+        'too_many_lines': 'Less than {0}% of files have approximately same size.'
+                          ' Maybe you need to split this file in parts.'
+    }
+
     """ Number of lines in file. Verbose version doesn't require specific logic. """
     def count(self, file, verbose=False):
         i = 0
@@ -19,13 +56,62 @@ class FileLength:
         return {i: 1}
 
     def discretize(self, values):
-        pass
+        discrete_values = {}
+        sum = 0.0
+        for group in self.discrete_groups:
+            discrete_values[group['name']] = 0
+        for value, count in values.items():
+            for group in self.discrete_groups:
+                if group['from'] <= value <= group['to']:
+                    discrete_values[group['name']] += count
+                    sum += count
+                    continue
+        for key, value in discrete_values.items():
+            discrete_values[key] = value / sum
+        return discrete_values
 
     def inspect(self, discrete, values):
-        pass
+        value = list(values.keys())[0]
+        percent = 0.0
+        for group in self.discrete_groups:
+            if group['from'] <= value <= group['to']:
+                value_group = group
+                percent += discrete[group['name']]
+            elif value <= group['from']:
+                # If file contains fewer lines it's ok
+                percent += discrete[group['name']]
+        inspections = {}
+        too_many_lines = 'too_many_lines'
+        if percent < 0.05:
+            inspections[too_many_lines] = {'message': self.inspections[too_many_lines].format(5)}
+        elif percent < 0.1:
+            inspections[too_many_lines] = {'message': self.inspections[too_many_lines].format(10)}
+        elif percent < 0.2:
+            inspections[too_many_lines] = {'message': self.inspections[too_many_lines].format(20)}
+        return inspections
 
 
 class FunctionNameCase:
+    NEED_TO_USE_CAMEL_CASE = 'need_to_use_camelcase'
+    NEED_TO_USE_UNDERSCORE = 'need_to_use_underscore'
+    NO_STYLE = 'no_style'
+    discrete_groups = [
+        {
+            'name': 'underscore',
+        },
+        {
+            'name': 'camelcase',
+        },
+        {
+            'name': 'other',
+        },
+    ]
+    inspections = {
+        NEED_TO_USE_CAMEL_CASE: 'Camel case is used in {0}% of code, but here underscore is used.',
+        NEED_TO_USE_UNDERSCORE: 'Underscore is used in {0}% of code, but here camel case is used.',
+        NO_STYLE: 'Underscore and camel case mixed in same name.',
+    }
+
     """ Number of underscored and camel cased names of functions in file. """
     def count(self, file, verbose=False):
         with open(file) as f:
@@ -77,10 +163,42 @@ class FunctionNameCase:
         return result
 
     def discretize(self, values):
-        pass
+        discrete_values = {}
+        sum = 0.0
+        for group in self.discrete_groups:
+            discrete_values[group['name']] = 0
+        for group, count in values.items():
+            discrete_values[group] = count
+            sum += count
+        for group, count in discrete_values.items():
+            discrete_values[group] = count / sum
+        return discrete_values
 
     def inspect(self, discrete, values):
-        pass
+        for_discretization = {}
+        for key, value in values.items():
+            for_discretization[key] = value['count']
+        file_discrete = self.discretize(for_discretization)
+        is_camelcase = False
+        if file_discrete['camelcase'] > file_discrete['underscore']:
+            is_camelcase = True
+        inspections = {}
+        if file_discrete['other'] > 0.0:
+            inspections[self.NO_STYLE] = {
+                'message': self.inspections[self.NO_STYLE],
+                'lines': values['other']['lines'],
+            }
+        if is_camelcase and file_discrete['underscore'] > 0.0:
+            inspections[self.NEED_TO_USE_CAMEL_CASE] = {
+                'message': self.inspections[self.NEED_TO_USE_CAMEL_CASE].format(discrete['camelcase'] * 100),
+                'lines': values['underscore']['lines'],
+            }
+        elif not is_camelcase and file_discrete['camelcase'] > 0.0:
+            inspections[self.NEED_TO_USE_UNDERSCORE] = {
+                'message': self.inspections[self.NEED_TO_USE_UNDERSCORE].format(discrete['underscore'] * 100),
+                'lines': values['camelcase']['lines'],
+            }
+        return inspections
 
 
 # Todo: incorrect

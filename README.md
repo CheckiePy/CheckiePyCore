@@ -129,11 +129,31 @@ and in verbose format:
 
 ##### 6.3.2. Discretize method
 
-* TODO
+```
+{
+    "metric_value1": percent_in_float_format,
+    "metric_value2": ...,
+    ...
+}
+```
+
+For example 10% in float format is 0.1.
 
 ##### 6.3.3. Inspect method
 
-* TODO
+```
+{
+    "inspection_name1":
+    {
+        "message": "Inspection message.",
+        "lines": [numbers_of_lines],
+    },
+    "inspection_name2": ...,
+    ...
+}
+```
+
+If inspection isn't applicable to any line then "lines" property should be omitted.
 
 # License
 

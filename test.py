@@ -1,5 +1,6 @@
 import unittest
 from acscore import metrics
+from acscore import analyzer
 
 
 class FunctionNameCaseTest(unittest.TestCase):
@@ -83,6 +84,59 @@ class FileLengthTest(unittest.TestCase):
             }
         }
         self.assertEqual(expected, result2)
+
+
+class AnalyzerTest(unittest.TestCase):
+    def test_inspect(self):
+        initial_metrics = {
+            'FunctionNameCase': {'underscore': 100, 'camelcase': 10, 'other': 15},
+            'FileLength': {5: 10, 35: 5, 100: 4, 105: 6},
+        }
+        a = analyzer.Analyzer(initial_metrics)
+        file_metrics = {
+            'FunctionNameCase':
+            {
+                'underscore':
+                {
+                    'count': 3,
+                    'lines': [1, 2, 3],
+                },
+                'camelcase':
+                {
+                    'count': 2,
+                    'lines': [4, 5],
+                },
+                'other':
+                {
+                    'count': 1,
+                    'lines': [6],
+                },
+            },
+            'FileLength': {1000: 1},
+        }
+        inspections = a.inspect(file_metrics)
+        expected = {
+            'FunctionNameCase':
+            {
+                'no_style':
+                {
+                    'message': 'Underscore and camel case mixed in same name.', 'lines': [6],
+                },
+                'need_to_use_underscore':
+                {
+                    'message': 'Underscore is used in 80.0% of code, but here camel case is used.', 'lines': [4, 5],
+                },
+            },
+            'FileLength':
+            {
+                'too_many_lines':
+                {
+                    'message': 'Less than 5% of files have approximately same size. '
+                               'Maybe you need to split this file in parts.',
+                },
+            },
+        }
+        self.assertEqual(expected, inspections)
 
 if __name__ == '__main__':
     unittest.main()

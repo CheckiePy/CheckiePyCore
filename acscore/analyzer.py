@@ -11,4 +11,15 @@ class Analyzer:
         self.process_metrics()
 
     def process_metrics(self):
-        pass
+        self.metric_instances = {}
+        self.discrete_values = {}
+        for metric, value in self.metrics.items():
+            metric_class = getattr(metrics, metric)
+            self.metric_instances[metric] = metric_class()
+            self.discrete_values[metric] = self.metric_instances[metric].discretize(value)
+
+    def inspect(self, file_metrics):
+        inspections = {}
+        for metric, values in file_metrics.items():
+            inspections[metric] = self.metric_instances[metric].inspect(self.discrete_values[metric], values)
+        return inspections

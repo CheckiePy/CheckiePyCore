@@ -53,7 +53,7 @@ class FileLength:
         with open(file) as f:
             for i, _ in enumerate(f, 1):
                 pass
-        return {i: 1}
+        return {'{0}'.format(i): 1}
 
     def discretize(self, values):
         discrete_values = {}
@@ -62,7 +62,7 @@ class FileLength:
             discrete_values[group['name']] = 0
         for value, count in values.items():
             for group in self.discrete_groups:
-                if group['from'] <= value <= group['to']:
+                if group['from'] <= int(value) <= group['to']:
                     discrete_values[group['name']] += count
                     sum += count
                     continue
@@ -74,10 +74,10 @@ class FileLength:
         value = list(values.keys())[0]
         percent = 0.0
         for group in self.discrete_groups:
-            if group['from'] <= value <= group['to']:
+            if group['from'] <= int(value) <= group['to']:
                 value_group = group
                 percent += discrete[group['name']]
-            elif value <= group['from']:
+            elif int(value) <= group['from']:
                 # If file contains fewer lines it's ok
                 percent += discrete[group['name']]
         inspections = {}

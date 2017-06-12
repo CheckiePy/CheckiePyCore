@@ -54,7 +54,7 @@ class FunctionNameCaseTest(unittest.TestCase):
 class FileLengthTest(unittest.TestCase):
     def setUp(self):
         self.fl = metrics.FileLength()
-        self.data = {5: 10, 35: 5, 100: 4, 105: 6}
+        self.data = {'5': 10, '35': 5, '100': 4, '105': 6}
 
     def test_count(self):
         pass
@@ -73,9 +73,9 @@ class FileLengthTest(unittest.TestCase):
 
     def test_inspect(self):
         discrete = self.fl.discretize(self.data)
-        result1 = self.fl.inspect(discrete, {10: 1})
+        result1 = self.fl.inspect(discrete, {'10': 1})
         self.assertEqual({}, result1)
-        result2 = self.fl.inspect(discrete, {1000: 1})
+        result2 = self.fl.inspect(discrete, {'1000': 1})
         expected = {
             'too_many_lines':
             {
@@ -90,7 +90,7 @@ class AnalyzerTest(unittest.TestCase):
     def test_inspect(self):
         initial_metrics = {
             'FunctionNameCase': {'underscore': 100, 'camelcase': 10, 'other': 15},
-            'FileLength': {5: 10, 35: 5, 100: 4, 105: 6},
+            'FileLength': {'5': 10, '35': 5, '100': 4, '105': 6},
         }
         a = analyzer.Analyzer(initial_metrics)
         file_metrics = {
@@ -112,7 +112,7 @@ class AnalyzerTest(unittest.TestCase):
                     'lines': [6],
                 },
             },
-            'FileLength': {1000: 1},
+            'FileLength': {'1000': 1},
         }
         inspections = a.inspect(file_metrics)
         expected = {

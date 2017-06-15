@@ -136,12 +136,9 @@ class FunctionNameCase:
                 elif any(ch.isupper() for ch in name):
                     camelcase_count += 1
                     camelcase_lines.append(line)
-                # One word without underscores and capital letters
                 else:
-                    underscore_count += 1
-                    underscore_lines.append(line)
-                    camelcase_count += 1
-                    camelcase_lines.append(line)
+                    # One word without underscores and capital letters (don't count this)
+                    pass
         result = {
             'underscore': underscore_count,
             'camelcase': camelcase_count,

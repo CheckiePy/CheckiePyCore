@@ -89,22 +89,32 @@ class FileLengthTest(unittest.TestCase):
 class NestingLoopsTest(unittest.TestCase):
     def setUp(self):
         self.nl = metrics.NestingLoops()
-        self.data = {'0': 7, '2': 2, '5': 1}
+        self.data1 = {'0': 7, '2': 2, '5': 1}
+        self.data2 = {'0': 15, '4': 5, '7': 3, '15': 2}
 
     def test_count(self):
         pass
 
     def test_discretize(self):
-        result = self.nl.discretize(self.data)
-        expected = {
-            'From0To2': 0.8,
+        result1 = self.nl.discretize(self.data1)
+        expected1 = {
+            'From0To2': 0.9,
             'From3To5': 0.1,
-            'From6To10': 0.1,
+            'From6To10': 0.0,
             'From11ToInf': 0.0,
         }
+        self.assertEqual(expected1, result1)
+        result2 = self.nl.discretize(self.data2)
+        expected2 = {
+            'From0To2': 0.6,
+            'From3To5': 0.2,
+            'From6To10': 0.12,
+            'From11ToInf': 0.08,
+        }
+        self.assertEqual(expected2, result2)
 
     def test_inspect(self):
-        discrete = self.nl.discretize(self.data)
+        discrete = self.nl.discretize(self.data1)
         result1 = self.nl.inspect(discrete, {'0': 1})
         self.assertEqual({}, result1)
         result2 = self.nl.inspect(discrete, {'1000': 1})
@@ -112,7 +122,7 @@ class NestingLoopsTest(unittest.TestCase):
             'too_many_loops':
                 {
                     'message': 'Less than 5% of files have approximately same depth of loops.'
-                               ' Maybe you need to optimize file and use less loops.'
+                               ' Maybe you need to make less loops.'
                 }
         }
         self.assertEqual(expected, result2)

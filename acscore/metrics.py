@@ -4,6 +4,7 @@ import ast
 IMPLEMENTED_METRICS = [
     'FileLength',
     'FunctionNameCase',
+    'NestingLoops',
 ]
 
 INF = 99999
@@ -48,6 +49,7 @@ class FileLength:
     }
 
     """ Number of lines in file. Verbose version doesn't require specific logic. """
+
     def count(self, file, verbose=False):
         i = 0
         with open(file) as f:
@@ -113,6 +115,7 @@ class FunctionNameCase:
     }
 
     """ Number of underscored and camel cased names of functions in file. """
+
     def count(self, file, verbose=False):
         with open(file) as f:
             root = ast.parse(f.read())
@@ -198,6 +201,135 @@ class FunctionNameCase:
         return inspections
 
 
+class NestingLoops:
+    discrete_groups = [
+        {
+            'name': 'From0To2',
+            'from': 0,
+            'to': 2,
+        },
+        {
+            'name': 'From3To5',
+            'from': 3,
+            'to': 5,
+        },
+        {
+            'name': 'From6To10',
+            'from': 6,
+            'to': 10,
+        },
+        {
+            'name': 'From11ToInf',
+            'from': 11,
+            'to': INF,
+        },
+    ]
+    inspections = {
+        'too_many_loops': 'Less than {0}% of files have approximately same depth of loops.'
+                          ' Maybe you need to make less loops.'
+    }
+
+    """ Number of nesting loops in files. Verbose version doesn't require specific logic. """
+
+    def count(self, file, verbose=False):
+        level = 0
+        begin = []
+        end = []
+        num_spaces = []
+        num_str = -1
+        with open(file) as f:
+            while True:
+                x = f.readline()
+                if not x: break
+                num_str += 1
+                result1 = re.search(r'^[ ]*for', x)
+                if result1 is not None:
+                    begin.append(num_str)
+                result2 = re.search(r'^[ ]*while', x)
+                if result2 is not None:
+                    begin.append(num_str)
+                    # print num_str
+            # print begin
+            f.seek(0)
+            num_str = -1
+            prev = 0
+            while True:
+                x = f.readline()
+                if not x: break
+                if x == "\n": num_spaces.append(prev)
+                prev = count_spaces(x)
+                num_spaces.append(prev)
+            # print num_spaces
+            f.seek(0)
+            num_str = count_strings(f)
+            f.seek(0)
+            for i in begin:
+                # print i
+                for j in range(i + 1, num_str):
+                    if num_spaces[j] <= num_spaces[i]:
+                        # print j
+                        end.append(j)
+                        break
+            end.sort()
+            if not end:
+                for i in begin:
+                    end.append(num_str)
+            # print end
+            nests = 0
+            max_nests = 0
+            end.append(INF)
+            begin.append(INF)
+            i = 0
+            j = 0
+            while (begin[i] != 99999) and (end[j] != 99999):
+                # print begin[i]
+                # print end[j]
+                if begin[i] < end[j]:
+                    nests += 1
+                    if max_nests < nests:
+                        max_nests = nests
+                    i += 1
+                if begin[i] >= end[j]:
+                    nests -= 1
+                    j += 1
+        return {'{0}'.format(max_nests): 1}
+
+    def discretize(self, values):
+        discrete_values = {}
+        sum = 0.0
+        for group in self.discrete_groups:
+            discrete_values[group['name']] = 0
+        for value, count in values.items():
+            for group in self.discrete_groups:
+                if group['from'] <= int(value) <= group['to']:
+                    discrete_values[group['name']] += count
+                    sum += count
+                    continue
+        for key, value in discrete_values.items():
+            discrete_values[key] = value / sum
+        return discrete_values
+
+    def inspect(self, discrete, values):
+        value = list(values.keys())[0]
+        percent = 0.0
+        for group in self.discrete_groups:
+            if group['from'] <= int(value) <= group['to']:
+                value_group = group
+                percent += discrete[group['name']]
+            elif int(value) <= group['from']:
+                # If file contains fewer loops it's ok
+                percent += discrete[group['name']]
+        inspections = {}
+        too_many_loops = 'too_many_loops'
+        if percent < 0.05:
+            inspections[too_many_loops] = {'message': self.inspections[too_many_loops].format(5)}
+        elif percent < 0.1:
+            inspections[too_many_loops] = {'message': self.inspections[too_many_loops].format(10)}
+        elif percent < 0.2:
+            inspections[too_many_loops] = {'message': self.inspections[too_many_loops].format(20)}
+        return inspections
+
+
 # Todo: incorrect
 def name_case(file, verbose=False):
     """ Number of underscored and camel cased names in file. """
@@ -205,12 +337,12 @@ def name_case(file, verbose=False):
         root = ast.parse(f.read())
         print('***', list(ast.walk(root)), '***')
         names = sorted({(node.id, node.lineno) for node in ast.walk(root) if isinstance(node, ast.Name)})
-        #names = sorted({node.id for node in ast.walk(root) if isinstance(node, ast.Name)})
+        # names = sorted({node.id for node in ast.walk(root) if isinstance(node, ast.Name)})
         underscore = 0
         underscore_lines = []
         camelcase = 0
         camelcase_lines = []
-        #for name in names:
+        # for name in names:
         for name, line in names:
             if name in ['False', 'True', 'None']:
                 continue
@@ -220,12 +352,12 @@ def name_case(file, verbose=False):
                 if character is '_':
                     underscore += 1
                     underscore_lines.append((name, line))
-                    #underscore_lines.append(name)
+                    # underscore_lines.append(name)
                     break
                 if character.isupper():
                     camelcase += 1
                     camelcase_lines.append((name, line))
-                    #camelcase_lines.append(name)
+                    # camelcase_lines.append(name)
     result = {
         'underscore': underscore,
         'camelcase': camelcase
@@ -276,9 +408,9 @@ def function_length(file):
         name = None
         string_count = 0
         for i in f:
-            #print(i)
+            # print(i)
             result = re.match(r'[ ]*def', i)
-            #print(result)
+            # print(result)
             if inside == True:
                 string_count += 1
             if (result is not None) and (inside is True):
@@ -287,7 +419,7 @@ def function_length(file):
                 inside = False
             if (result is not None) and (inside is False):
                 name = re.search('(?<=def )\w+\(.*\)', i)
-                #(name)
+                # (name)
                 string_count = 0
                 inside = True
             result2 = re.match(r'[a-z]|[A-Z]', i)
@@ -317,73 +449,8 @@ def classes_count(file):
     return {classes_amount: 1}
 
 
-def count_loop_nesting(file):
-    level = 0
-    begin = []
-    end = []
-    num_spaces = []
-    num_str = -1
-    with open(file) as f:
-        while True:
-            x = f.readline()
-            if not x: break
-            num_str += 1
-            result1 = re.search(r'^[ ]*for', x)
-            if result1 is not None:
-                begin.append(num_str)
-            result2 = re.search(r'^[ ]*while', x)
-            if result2 is not None:
-                begin.append(num_str)
-            #print num_str
-        #print begin
-        f.seek(0)
-        num_str = -1
-        prev = 0
-        while True:
-            x = f.readline()
-            if not x: break
-            if x == "\n": num_spaces.append(prev)
-            prev = count_spaces(x)
-            num_spaces.append(prev)
-        #print num_spaces
-        f.seek(0)
-        num_str = count_strings(f)
-        f.seek(0)
-        for i in begin:
-            #print i
-            for j in range(i+1, num_str):
-                if num_spaces[j] <= num_spaces[i]:
-                    #print j
-                    end.append(j)
-                    break
-        end.sort()
-        if not end:
-            for i in begin:
-                end.append(num_str)
-        #print end
-        nests = 0
-        max_nests = 0
-        end.append(INF)
-        begin.append(INF)
-        i = 0
-        j = 0
-        while (begin[i] != 99999) and (end[j] != 99999):
-                #print begin[i]
-                #print end[j]
-                if begin[i] < end[j]:
-                    nests += 1
-                    if max_nests < nests:
-                        max_nests = nests
-                    i += 1
-                if begin[i] >= end[j]: 
-                    nests -= 1
-                    j += 1
-    print(max_nests)
-    return { max_nests: 1 }
-
-
 # Todo: redefenition (look at first function)
-def count_spaces(file):
+def _count_spaces(file):
     with open(file) as f:
         count = 0
         for line in file:
@@ -391,7 +458,7 @@ def count_spaces(file):
                 continue
             else:
                 count += 1
-    return { "spaces": count }
+    return {"spaces": count}
 
 
 def count_tabs(file):
@@ -400,7 +467,7 @@ def count_tabs(file):
         for line in file:
             for i in line:
                 if (i is not "\t"):
-                    break    
+                    break
                 else:
                     count += 1
-    return { "tabs": count }
+    return {"tabs": count}

@@ -216,24 +216,19 @@ class NestingLoops:
             'to': 2,
         },
         {
-            'name': 'From3To5',
+            'name': 'From3To4',
             'from': 3,
-            'to': 5,
+            'to': 4,
         },
         {
-            'name': 'From6To10',
-            'from': 6,
-            'to': 10,
-        },
-        {
-            'name': 'From11ToInf',
-            'from': 11,
+            'name': 'From5ToInf',
+            'from': 5,
             'to': INF,
         },
     ]
     inspections = {
-        'too_many_loops': 'Less than {0}% of files have approximately same depth of loops.'
-                          ' Maybe you need to make less loops.'
+        'too_many_loops': 'You definitely can write it better!',
+        'more_loops_than_needed': 'Too many loops comparing to the repository.',
     }
 
     """ Number of nesting loops in files. Verbose version doesn't require specific logic. """
@@ -249,10 +244,10 @@ class NestingLoops:
                 x = f.readline()
                 if not x: break
                 num_str += 1
-                result1 = re.search(r'^[ ]*for', x)
+                result1 = re.search(r'^([ ]|[\t])*for', x)
                 if result1 is not None:
                     begin.append(num_str)
-                result2 = re.search(r'^[ ]*while', x)
+                result2 = re.search(r'^([ ]|[\t])*while', x)
                 if result2 is not None:
                     begin.append(num_str)
                     # print num_str
@@ -328,12 +323,13 @@ class NestingLoops:
                 percent += discrete[group['name']]
         inspections = {}
         too_many_loops = 'too_many_loops'
-        if percent < 0.05:
-            inspections[too_many_loops] = {'message': self.inspections[too_many_loops].format(5)}
+        more_loops_than_needed = 'more_loops_than_needed'
+        if value_group['name'] == 'From5ToInf':
+            inspections[too_many_loops] = {'message': self.inspections[too_many_loops]}
         elif percent < 0.1:
-            inspections[too_many_loops] = {'message': self.inspections[too_many_loops].format(10)}
+            inspections[more_loops_than_needed] = {'message': self.inspections[more_loops_than_needed]}
         elif percent < 0.2:
-            inspections[too_many_loops] = {'message': self.inspections[too_many_loops].format(20)}
+            inspections[more_loops_than_needed] = {'message': self.inspections[more_loops_than_needed]}
         return inspections
 
 
@@ -675,8 +671,8 @@ class IndentType:
         },
     ]
     inspections = {
-        NEED_TO_USE_TABS: 'Spaces are used in {0}% of your code, but this is tab.',
-        NEED_TO_USE_SPACES: 'Tabs are used in {0}% of your code, but this is spaces.',
+        NEED_TO_USE_TABS: 'Tabs are used in {0}% of your code, but these are spaces.',
+        NEED_TO_USE_SPACES: 'Spaces are used in {0}% of your code, but these are tabs.',
     }
 
     """ Number of tabs and spaces indents in file. """
@@ -690,7 +686,7 @@ class IndentType:
                    spaces_count += 1
                 if line[:1] == '\t':
                     tabs_count += 1
-        if (tabs_count > spaces_count):
+        if tabs_count > spaces_count:
             result = {
                 'spaces': 0,
                 'tabs': 1,
@@ -720,7 +716,7 @@ class IndentType:
             for_discretization[key] = value
         file_discrete = self.discretize(for_discretization)
         is_tab = False
-        if file_discrete['tabs'] > file_discrete['spaces']:
+        if discrete['tabs'] > discrete['spaces']:
             is_tab = True
         inspections = {}
         if is_tab and file_discrete['spaces'] > 0.0:
@@ -780,10 +776,13 @@ def name_case(file, verbose=False):
 def count_spaces(string):
     count = 0
     for i in string:
-        if i != ' ':
+        if (i != '\t') and (i != ' '):
             continue
         else:
-            count += 1
+            if i == '\t':
+                count += 4
+            if i == ' ':
+                count += 1
     return count
 
 

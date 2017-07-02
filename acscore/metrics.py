@@ -129,7 +129,9 @@ class FunctionNameCase:
             for name, line in names:
                 # Underscored or in camel case with underscore (i.e. "other")
                 if '_' in name:
-                    if any(ch.isupper() for ch in name):
+                    if name.startswith('__'):
+                        continue
+                    if any(ch.isupper() for ch in name) or ('__' in name):
                         other_count += 1
                         other_lines.append(line)
                     else:

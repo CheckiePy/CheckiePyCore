@@ -557,6 +557,76 @@ class ClassNameCase:
         return inspections
 
 
+class IndentType:
+    NEED_TO_USE_TABS = 'need_to_use_tabs'
+    NEED_TO_USE_SPACES = 'need_to_use_spaces'
+    discrete_groups = [
+        {
+            'name': 'tabs',
+        },
+        {
+            'name': 'spaces',
+        },
+    ]
+    inspections = {
+        NEED_TO_USE_TABS: 'Spaces are used in {0}% of your code, but this is tab.',
+        NEED_TO_USE_SPACES: 'Tabs are used in {0}% of your code, but this is spaces.',
+    }
+
+    """ Number of tabs and spaces indents in file. """
+
+    def count(self, file, verbose=False):
+        with open(file) as f:
+            spaces_count = 0
+            tabs_count = 0
+            for line in f:
+                if line[:2] == '  ':
+                   spaces_count += 1
+                if line[:1] == '\t':
+                    tabs_count += 1
+        if (tabs_count > spaces_count):
+            result = {
+                'spaces': 0,
+                'tabs': 1,
+            }
+        else:
+            result = {
+                'spaces': 1,
+                'tabs': 0,
+            }
+        return result
+
+    def discretize(self, values):
+        discrete_values = {}
+        sum = 0.0
+        for group in self.discrete_groups:
+            discrete_values[group['name']] = 0
+        for group, count in values.items():
+            discrete_values[group] = count
+            sum += count
+        for group, count in discrete_values.items():
+            discrete_values[group] = count / sum
+        return discrete_values
+
+    def inspect(self, discrete, values):
+        for_discretization = {}
+        for key, value in values.items():
+            for_discretization[key] = value['count']
+        file_discrete = self.discretize(for_discretization)
+        is_tab = False
+        if file_discrete['tabs'] > file_discrete['spaces']:
+            is_tab = True
+        inspections = {}
+        if is_tab and file_discrete['spaces'] > 0.0:
+            inspections[self.NEED_TO_USE_TABS] = {
+                'message': self.inspections[self.NEED_TO_USE_TABS].format(discrete['tabs'] * 100)
+            }
+        elif not is_tab and file_discrete['tabs'] > 0.0:
+            inspections[self.NEED_TO_USE_SPACES] = {
+                'message': self.inspections[self.NEED_TO_USE_SPACES].format(discrete['spaces'] * 100)
+            }
+        return inspections
+
 # Todo: incorrect
 def name_case(file, verbose=False):
     """ Number of underscored and camel cased names in file. """
@@ -638,26 +708,3 @@ def classes_count(file):
     print(classes_amount)
     return {classes_amount: 1}
 
-
-# Todo: redefenition (look at first function)
-def _count_spaces(file):
-    with open(file) as f:
-        count = 0
-        for line in file:
-            if (line[:4]) != "    ":
-                continue
-            else:
-                count += 1
-    return {"spaces": count}
-
-
-def count_tabs(file):
-    with open(file) as f:
-        count = 0
-        for line in file:
-            for i in line:
-                if (i is not "\t"):
-                    break
-                else:
-                    count += 1
-    return {"tabs": count}

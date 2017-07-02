@@ -1,5 +1,6 @@
 import sys
 import os
+import json
 
 from acscore import counter
 
@@ -17,7 +18,7 @@ def main():
         metrics = cntr.metrics_for_file(path, verbose=True)
     else:
         metrics = cntr.metrics_for_dir(path)
-    print(metrics)
+    print(json.dumps(metrics, indent=4, sort_keys=True))
 
 if __name__ == '__main__':
     main()

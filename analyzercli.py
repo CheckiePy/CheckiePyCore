@@ -18,15 +18,13 @@ def main():
         metrics = json.loads(metrics_file.read())
     cntr = counter.Counter()
     file_metrics = cntr.metrics_for_file(file_path, verbose=True)
-    print(metrics)
-    print(file_metrics)
     anlzr = analyzer.Analyzer(metrics)
     inspections = anlzr.inspect(file_metrics)
     result = {
         'file_metrics': file_metrics,
         'inspections': inspections,
     }
-    print(json.dumps(result))
+    print(json.dumps(result, indent=4, sort_keys=True))
 
 if __name__ == '__main__':
     main()

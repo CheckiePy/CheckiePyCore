@@ -20,8 +20,15 @@ pip3 install -r requirements.txt
 
 #### 3.1. From command line
 
+Get metrics for file or directory:
+
 ```
-python3 main.py <path to file or directory>
+python3 countercli.py <path to file or directory>
+```
+
+Get inspections for file or directory:
+```
+python3 analyzecli.py <path to file for analyze> <path to file with metrics>
 ```
 
 #### 3.2. From code
@@ -38,6 +45,9 @@ python3 test.py
 
 * FileLength
 * FunctionNameCase
+* NestingLoops
+* FunctionLength
+* ClassNameCase
 
 ### 5. Report format
 

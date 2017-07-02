@@ -175,7 +175,8 @@ class FunctionNameCase:
             discrete_values[group] = count
             sum += count
         for group, count in discrete_values.items():
-            discrete_values[group] = count / sum
+            if sum != 0:
+                discrete_values[group] = count / sum
         return discrete_values
 
     def inspect(self, discrete, values):

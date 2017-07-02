@@ -5,8 +5,10 @@ IMPLEMENTED_METRICS = [
     'FileLength',
     'FunctionNameCase',
     'NestingLoops',
-    'FunctionLength',
+    'MaxFunctionLength',
+    #'FunctionLength',
     'ClassNameCase',
+    'IndentType',
 ]
 
 INF = 99999
@@ -431,7 +433,7 @@ class FunctionLength:
 
     def inspect(self, discrete, values):
         inspections = {}
-        value = (values.keys() or [None])[0]
+        value = (list(values.keys()) or [None])[0]
         if not value:
             return inspections
         percent = 0.0
@@ -561,6 +563,176 @@ class ClassNameCase:
         return inspections
 
 
+class MaxFunctionLength:
+    discrete_groups = [
+        {
+            'name': 'From0To10',
+            'from': 0,
+            'to': 10,
+        },
+        {
+            'name': 'From11To40',
+            'from': 11,
+            'to': 40,
+        },
+        {
+            'name': 'From41To100',
+            'from': 41,
+            'to': 100,
+        },
+        {
+            'name': 'From101To250',
+            'from': 101,
+            'to': 250,
+        },
+        {
+            'name': 'From250To1000',
+            'from': 250,
+            'to': 1000,
+        },
+        {
+            'name': 'From1000ToInf',
+            'from': 1000,
+            'to': INF,
+        },
+    ]
+    inspections = {
+        'function_too_long': 'Less than {0}% of your functions have approximately same size.'
+                             ' Maybe you need to split this function in parts.'
+    }
+
+    """ Number of lines in functions. Verbose version doesn't require specific logic. """
+
+    def count(self, file, verbose=False):
+        with open(file) as f:
+            result = None
+            name = None
+            string_count = 0
+            max_len = 0
+            cur_len = 0
+            for line in f:
+                result = re.match(r'(def)|((    |\t)def)', line)
+                if result is not None:
+                    # print(cur_line)
+                    # cur_func_line = cur_line
+                    if cur_len > max_len:
+                        max_len = cur_len + 1
+                    cur_len = 0
+                else:
+                    cur_len += 1
+            if cur_len > max_len:
+                max_len = cur_len + 1
+        return {max_len: 1}
+
+    def discretize(self, values):
+        discrete_values = {}
+        sum = 0.0
+        for group in self.discrete_groups:
+            discrete_values[group['name']] = 0
+        for value, count in values.items():
+            for group in self.discrete_groups:
+                if group['from'] <= int(value) <= group['to']:
+                    discrete_values[group['name']] += count
+                    sum += count
+                    continue
+        for key, value in discrete_values.items():
+            discrete_values[key] = value / sum
+        return discrete_values
+
+    def inspect(self, discrete, values):
+        inspections = {}
+        value = (list(values.keys()) or [None])[0]
+        if not value:
+            return inspections
+        percent = 0.0
+        for group in self.discrete_groups:
+            if group['from'] <= int(value) <= group['to']:
+                # value_group = group
+                percent += discrete[group['name']]
+            elif int(value) <= group['from']:
+                # If function contains fewer lines it's ok
+                percent += discrete[group['name']]
+        func_too_long = 'function_too_long'
+        if percent < 0.05:
+            inspections[func_too_long] = {'message': self.inspections[func_too_long].format(5)}
+        elif percent < 0.1:
+            inspections[func_too_long] = {'message': self.inspections[func_too_long].format(10)}
+        elif percent < 0.2:
+            inspections[func_too_long] = {'message': self.inspections[func_too_long].format(20)}
+        return inspections
+
+
+
+class IndentType:
+    NEED_TO_USE_TABS = 'need_to_use_tabs'
+    NEED_TO_USE_SPACES = 'need_to_use_spaces'
+    discrete_groups = [
+        {
+            'name': 'tabs',
+        },
+        {
+            'name': 'spaces',
+        },
+    ]
+    inspections = {
+        NEED_TO_USE_TABS: 'Spaces are used in {0}% of your code, but this is tab.',
+        NEED_TO_USE_SPACES: 'Tabs are used in {0}% of your code, but this is spaces.',
+    }
+
+    """ Number of tabs and spaces indents in file. """
+
+    def count(self, file, verbose=False):
+        with open(file) as f:
+            spaces_count = 0
+            tabs_count = 0
+            for line in f:
+                if line[:2] == '  ':
+                   spaces_count += 1
+                if line[:1] == '\t':
+                    tabs_count += 1
+        if (tabs_count > spaces_count):
+            result = {
+                'spaces': 0,
+                'tabs': 1,
+            }
+        else:
+            result = {
+                'spaces': 1,
+                'tabs': 0,
+            }
+        return result
+
+    def discretize(self, values):
+        discrete_values = {}
+        sum = 0.0
+        for group in self.discrete_groups:
+            discrete_values[group['name']] = 0
+        for group, count in values.items():
+            discrete_values[group] = count
+            sum += count
+        for group, count in discrete_values.items():
+            discrete_values[group] = count / sum
+        return discrete_values
+
+    def inspect(self, discrete, values):
+        for_discretization = {}
+        for key, value in values.items():
+            for_discretization[key] = value
+        file_discrete = self.discretize(for_discretization)
+        is_tab = False
+        if file_discrete['tabs'] > file_discrete['spaces']:
+            is_tab = True
+        inspections = {}
+        if is_tab and file_discrete['spaces'] > 0.0:
+            inspections[self.NEED_TO_USE_TABS] = {
+                'message': self.inspections[self.NEED_TO_USE_TABS].format(discrete['tabs'] * 100)
+            }
+        elif not is_tab and file_discrete['tabs'] > 0.0:
+            inspections[self.NEED_TO_USE_SPACES] = {
+                'message': self.inspections[self.NEED_TO_USE_SPACES].format(discrete['spaces'] * 100)
+            }
+        return inspections
+
 # Todo: incorrect
 def name_case(file, verbose=False):
     """ Number of underscored and camel cased names in file. """
@@ -642,26 +814,3 @@ def classes_count(file):
     print(classes_amount)
     return {classes_amount: 1}
 
-
-# Todo: redefenition (look at first function)
-def _count_spaces(file):
-    with open(file) as f:
-        count = 0
-        for line in file:
-            if (line[:4]) != "    ":
-                continue
-            else:
-                count += 1
-    return {"spaces": count}
-
-
-def count_tabs(file):
-    with open(file) as f:
-        count = 0
-        for line in file:
-            for i in line:
-                if (i is not "\t"):
-                    break
-                else:
-                    count += 1
-    return {"tabs": count}

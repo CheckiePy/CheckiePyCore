@@ -48,8 +48,8 @@ class FileLength:
         },
     ]
     inspections = {
-        'too_many_lines': 'Less than {0}% of files have approximately same size.'
-                          ' Maybe you need to split this file in parts.'
+        'too_many_lines': ' File too long ' 
+                          ' According to the repo scan we recommend you to split this file into parts. '
     }
 
     """ Number of lines in file. Verbose version doesn't require specific logic. """
@@ -113,8 +113,10 @@ class FunctionNameCase:
         },
     ]
     inspections = {
-        NEED_TO_USE_CAMEL_CASE: 'Camel case is used in {0}% of code, but here underscore is used.',
-        NEED_TO_USE_UNDERSCORE: 'Underscore is used in {0}% of code, but here camel case is used.',
+        NEED_TO_USE_CAMEL_CASE: ' According to the repo scan we recommend you to use camelcase '
+                                ' Instead of underscore in this function name',
+        NEED_TO_USE_UNDERSCORE: ' According to the repo scan we recommend you to use underscore '
+                                ' Instead of camelcase in this function name',
         NO_STYLE: 'Underscore and camel case mixed in same name.',
     }
 
@@ -227,8 +229,8 @@ class NestingLoops:
         },
     ]
     inspections = {
-        'too_many_loops': 'You definitely can write it better!',
-        'more_loops_than_needed': 'Too many loops comparing to the repository.',
+        'too_many_loops': ' You definitely can write it better! ',
+        'more_loops_than_needed': ' Too many loops comparing to the repository. ',
     }
 
     """ Number of nesting loops in files. Verbose version doesn't require specific logic. """
@@ -466,8 +468,10 @@ class ClassNameCase:
         },
     ]
     inspections = {
-        NEED_TO_USE_CAMEL_CASE: 'Camel case is used in {0}% of your classes definition, but this is underscore.',
-        NEED_TO_USE_UNDERSCORE: 'Underscore is used in {0}% of your classes definition, but this is camel case.',
+        NEED_TO_USE_CAMEL_CASE: ' According to the repo scan we recommend you to use camelcase '
+                                ' Instead of underscore in this class definition ',
+        NEED_TO_USE_UNDERSCORE: ' According to the repo scan we recommend you to use underscore '
+                                ' Instead of camelcase in this class definition ',
         NO_STYLE: 'Underscore and camel case mixed in same class name.',
     }
 
@@ -593,8 +597,8 @@ class MaxFunctionLength:
         },
     ]
     inspections = {
-        'function_too_long': 'Less than {0}% of your functions have approximately same size.'
-                             ' Maybe you need to split this function in parts.'
+        'function_too_long': ' In this repo functions are mostly written shorter. '
+                             ' Maybe you need to split this function into parts.'
     }
 
     """ Number of lines in functions. Verbose version doesn't require specific logic. """
@@ -671,8 +675,8 @@ class IndentType:
         },
     ]
     inspections = {
-        NEED_TO_USE_TABS: 'Tabs are used in {0}% of your code, but these are spaces.',
-        NEED_TO_USE_SPACES: 'Spaces are used in {0}% of your code, but these are tabs.',
+        NEED_TO_USE_TABS: ' Tabs are used in {0}% of your code, but these are spaces. ',
+        NEED_TO_USE_SPACES: ' Spaces are used in {0}% of your code, but these are tabs. ',
     }
 
     """ Number of tabs and spaces indents in file. """

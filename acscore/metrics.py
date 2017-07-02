@@ -430,7 +430,10 @@ class FunctionLength:
         return discrete_values
 
     def inspect(self, discrete, values):
-        value = list(values.keys())[0]
+        inspections = {}
+        value = (values.keys() or [None])[0]
+        if not value:
+            return inspections
         percent = 0.0
         for group in self.discrete_groups:
             if group['from'] <= int(value) <= group['to']:
@@ -439,7 +442,6 @@ class FunctionLength:
             elif int(value) <= group['from']:
                 # If function contains fewer lines it's ok
                 percent += discrete[group['name']]
-        inspections = {}
         func_too_long = 'function_too_long'
         if percent < 0.05:
             inspections[func_too_long] = {'message': self.inspections[func_too_long].format(5)}
@@ -528,7 +530,8 @@ class ClassNameCase:
             discrete_values[group] = count
             sum += count
         for group, count in discrete_values.items():
-            discrete_values[group] = count / sum
+            if sum != 0:
+                discrete_values[group] = count / sum
         return discrete_values
 
     def inspect(self, discrete, values):

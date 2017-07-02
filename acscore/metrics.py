@@ -5,6 +5,8 @@ IMPLEMENTED_METRICS = [
     'FileLength',
     'FunctionNameCase',
     'NestingLoops',
+    'FunctionLength',
+    'ClassNameCase',
 ]
 
 INF = 99999
@@ -332,6 +334,229 @@ class NestingLoops:
         return inspections
 
 
+class FunctionLength:
+    discrete_groups = [
+        {
+            'name': 'From0To10',
+            'from': 0,
+            'to': 10,
+        },
+        {
+            'name': 'From11To40',
+            'from': 11,
+            'to': 40,
+        },
+        {
+            'name': 'From41To100',
+            'from': 41,
+            'to': 100,
+        },
+        {
+            'name': 'From101To250',
+            'from': 101,
+            'to': 250,
+        },
+        {
+            'name': 'From250To1000',
+            'from': 250,
+            'to': 1000,
+        },
+        {
+            'name': 'From1000ToInf',
+            'from': 1000,
+            'to': INF,
+        },
+    ]
+    inspections = {
+        'function_too_long': 'Less than {0}% of your functions have approximately same size.'
+                             ' Maybe you need to split this function in parts.'
+    }
+
+    """ Number of lines in functions. Verbose version doesn't require specific logic. """
+
+    def count(self, file, verbose=False):
+        with open(file) as f:
+            lengths_of_func = {}
+            result = None
+            inside = False
+            name = None
+            string_count = 0
+            cur_line = 0
+            cur_func_line = 0
+            for i in f:
+                cur_line += 1
+                # print(i)
+                result = re.match(r'[ ]*def', i)
+                # print(result)
+                if inside == True:
+                    string_count += 1
+                if (result is not None) and (inside is True):
+                    # print(cur_line)
+                    # cur_func_line = cur_line
+                    lengths_of_func[cur_func_line] = string_count - 2
+                    string_count = 0
+                    inside = False
+                if (result is not None) and (inside is False):
+                    # print(cur_line)
+                    name = re.search('(?<=def )\w+\(.*\)', i)
+                    # if name is not None:
+                    #    print(cur_func_line, name)
+                    cur_func_line = cur_line
+                    # (name)
+                    string_count = 0
+                    inside = True
+                result2 = re.match(r'[a-z]|[A-Z]', i)
+                if (result2 is not None) and (result is None) and (inside is True):
+                    lengths_of_func[cur_func_line] = string_count
+                    string_count = 0
+                    inside = False
+        res = dict((v, k) for k, v in lengths_of_func.items())
+        return res
+
+    def discretize(self, values):
+        discrete_values = {}
+        sum = 0.0
+        for group in self.discrete_groups:
+            discrete_values[group['name']] = 0
+        for value, count in values.items():
+            for group in self.discrete_groups:
+                if group['from'] <= int(value) <= group['to']:
+                    discrete_values[group['name']] += count
+                    sum += count
+                    continue
+        for key, value in discrete_values.items():
+            discrete_values[key] = value / sum
+        return discrete_values
+
+    def inspect(self, discrete, values):
+        value = list(values.keys())[0]
+        percent = 0.0
+        for group in self.discrete_groups:
+            if group['from'] <= int(value) <= group['to']:
+                # value_group = group
+                percent += discrete[group['name']]
+            elif int(value) <= group['from']:
+                # If function contains fewer lines it's ok
+                percent += discrete[group['name']]
+        inspections = {}
+        func_too_long = 'function_too_long'
+        if percent < 0.05:
+            inspections[func_too_long] = {'message': self.inspections[func_too_long].format(5)}
+        elif percent < 0.1:
+            inspections[func_too_long] = {'message': self.inspections[func_too_long].format(10)}
+        elif percent < 0.2:
+            inspections[func_too_long] = {'message': self.inspections[func_too_long].format(20)}
+        return inspections
+
+
+class ClassNameCase:
+    NEED_TO_USE_CAMEL_CASE = 'need_to_use_camelcase'
+    NEED_TO_USE_UNDERSCORE = 'need_to_use_underscore'
+    NO_STYLE = 'no_style'
+    discrete_groups = [
+        {
+            'name': 'underscore',
+        },
+        {
+            'name': 'camelcase',
+        },
+        {
+            'name': 'other',
+        },
+    ]
+    inspections = {
+        NEED_TO_USE_CAMEL_CASE: 'Camel case is used in {0}% of your classes definition, but this is underscore.',
+        NEED_TO_USE_UNDERSCORE: 'Underscore is used in {0}% of your classes definition, but this is camel case.',
+        NO_STYLE: 'Underscore and camel case mixed in same class name.',
+    }
+
+    """ Number of underscored and camel cased names of classes in file. """
+
+    def count(self, file, verbose=False):
+        with open(file) as f:
+            root = ast.parse(f.read())
+            names = [(node.name, node.lineno) for node in ast.walk(root) if isinstance(node, ast.ClassDef)]
+            underscore_count = 0
+            underscore_lines = []
+            camelcase_count = 0
+            camelcase_lines = []
+            other_count = 0
+            other_lines = []
+            for name, line in names:
+                # Underscored or in camel case with underscore (i.e. "other")
+                if '_' in name:
+                    if any(ch.isupper() for ch in name):
+                        other_count += 1
+                        other_lines.append(line)
+                    else:
+                        underscore_count += 1
+                        underscore_lines.append(line)
+                # In camel case
+                elif any(ch.isupper() for ch in name):
+                    camelcase_count += 1
+                    camelcase_lines.append(line)
+                else:
+                    # One word without underscores and capital letters (don't count this)
+                    pass
+        result = {
+            'underscore': underscore_count,
+            'camelcase': camelcase_count,
+            'other': other_count,
+        }
+        if verbose:
+            result['underscore'] = {
+                'count': underscore_count,
+                'lines': underscore_lines,
+            }
+            result['camelcase'] = {
+                'count': camelcase_count,
+                'lines': camelcase_lines,
+            }
+            result['other'] = {
+                'count': other_count,
+                'lines': other_lines,
+            }
+        return result
+
+    def discretize(self, values):
+        discrete_values = {}
+        sum = 0.0
+        for group in self.discrete_groups:
+            discrete_values[group['name']] = 0
+        for group, count in values.items():
+            discrete_values[group] = count
+            sum += count
+        for group, count in discrete_values.items():
+            discrete_values[group] = count / sum
+        return discrete_values
+
+    def inspect(self, discrete, values):
+        for_discretization = {}
+        for key, value in values.items():
+            for_discretization[key] = value['count']
+        file_discrete = self.discretize(for_discretization)
+        is_camelcase = False
+        if file_discrete['camelcase'] > file_discrete['underscore']:
+            is_camelcase = True
+        inspections = {}
+        if file_discrete['other'] > 0.0:
+            inspections[self.NO_STYLE] = {
+                'message': self.inspections[self.NO_STYLE],
+                'lines': values['other']['lines'],
+            }
+        if is_camelcase and file_discrete['underscore'] > 0.0:
+            inspections[self.NEED_TO_USE_CAMEL_CASE] = {
+                'message': self.inspections[self.NEED_TO_USE_CAMEL_CASE].format(discrete['camelcase'] * 100),
+                'lines': values['underscore']['lines'],
+            }
+        elif not is_camelcase and file_discrete['camelcase'] > 0.0:
+            inspections[self.NEED_TO_USE_UNDERSCORE] = {
+                'message': self.inspections[self.NEED_TO_USE_UNDERSCORE].format(discrete['underscore'] * 100),
+                'lines': values['camelcase']['lines'],
+            }
+        return inspections
+
+
 # Todo: incorrect
 def name_case(file, verbose=False):
     """ Number of underscored and camel cased names in file. """
@@ -400,43 +625,6 @@ def function_count(file):
             if result is not None:
                 func_amount += 1
     return {func_amount: 1}
-
-
-def function_length(file):
-    with open(file) as f:
-        lengths_of_func = {}
-        result = None
-        inside = False
-        name = None
-        string_count = 0
-        for i in f:
-            # print(i)
-            result = re.match(r'[ ]*def', i)
-            # print(result)
-            if inside == True:
-                string_count += 1
-            if (result is not None) and (inside is True):
-                lengths_of_func[name] = string_count
-                string_count = 0
-                inside = False
-            if (result is not None) and (inside is False):
-                name = re.search('(?<=def )\w+\(.*\)', i)
-                # (name)
-                string_count = 0
-                inside = True
-            result2 = re.match(r'[a-z]|[A-Z]', i)
-            if (result2 is not None) and (result is None) and (inside is True):
-                lengths_of_func[name] = string_count
-                string_count = 0
-                inside = False
-            if name not in lengths_of_func.keys():
-                lengths_of_func[name] = string_count
-    res = {}
-    for i in lengths_of_func.keys():
-        res[lengths_of_func[i]] = 0
-    for i in lengths_of_func.keys():
-        res[lengths_of_func[i]] += 1
-    return res
 
 
 def classes_count(file):

@@ -7,6 +7,7 @@ IMPLEMENTED_METRICS = [
     'NestingLoops',
     'FunctionLength',
     'ClassNameCase',
+    'IndentType',
 ]
 
 INF = 99999
@@ -431,7 +432,7 @@ class FunctionLength:
 
     def inspect(self, discrete, values):
         inspections = {}
-        value = (values.keys() or [None])[0]
+        value = (list(values.keys()) or [None])[0]
         if not value:
             return inspections
         percent = 0.0
@@ -615,7 +616,7 @@ class IndentType:
     def inspect(self, discrete, values):
         for_discretization = {}
         for key, value in values.items():
-            for_discretization[key] = value['count']
+            for_discretization[key] = value
         file_discrete = self.discretize(for_discretization)
         is_tab = False
         if file_discrete['tabs'] > file_discrete['spaces']:

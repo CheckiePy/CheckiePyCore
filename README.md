@@ -46,8 +46,8 @@ python3 test.py
 * FileLength
 * FunctionNameCase
 * NestingLoops
-* FunctionLength
 * ClassNameCase
+* IndentType'
 
 ### 5. Report format
 

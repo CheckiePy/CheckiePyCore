@@ -5,6 +5,8 @@ IMPLEMENTED_METRICS = [
     'FileLength',
     'FunctionNameCase',
     'NestingLoops',
+    'FunctionLength',
+    'ClassNameCase',
 ]
 
 INF = 99999

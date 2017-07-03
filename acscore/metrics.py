@@ -278,11 +278,11 @@ class NestingLoops:
                     end.append(num_str)
             nests = 0
             max_nests = 0
-            end.append(99999)
-            begin.append(99999)
+            end.append(INF)
+            begin.append(INF)
             i = 0
             j = 0
-            while (begin[i] != 99999) and (end[j] != 99999):
+            while (begin[i] != INF) and (end[j] != INF):
                 # print begin[i]
                 # print end[j]
                 if begin[i] < end[j]:
@@ -313,7 +313,6 @@ class NestingLoops:
     def inspect(self, discrete, values):
         value = list(values.keys())[0]
         percent = 0.0
-        print(discrete)
         for group in self.discrete_groups:
             if group['from'] <= int(value) <= group['to']:
                 value_group = group

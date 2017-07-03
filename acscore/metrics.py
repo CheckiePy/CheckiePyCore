@@ -253,39 +253,36 @@ class NestingLoops:
                 if result2 is not None:
                     begin.append(num_str)
                     # print num_str
-            # print begin
             f.seek(0)
             num_str = -1
             prev = 0
             while True:
                 x = f.readline()
                 if not x: break
-                if x == "\n": num_spaces.append(prev)
+                if x == "\n":
+                    num_spaces.append(0)
+                    continue
                 prev = count_spaces(x)
                 num_spaces.append(prev)
-            # print num_spaces
             f.seek(0)
             num_str = count_strings(f)
             f.seek(0)
             for i in begin:
-                # print i
                 for j in range(i + 1, num_str):
                     if num_spaces[j] <= num_spaces[i]:
-                        # print j
                         end.append(j)
                         break
             end.sort()
             if not end:
                 for i in begin:
                     end.append(num_str)
-            # print end
             nests = 0
             max_nests = 0
             end.append(INF)
             begin.append(INF)
             i = 0
             j = 0
-            while (begin[i] != 99999) and (end[j] != 99999):
+            while (begin[i] != INF) and (end[j] != INF):
                 # print begin[i]
                 # print end[j]
                 if begin[i] < end[j]:
@@ -781,14 +778,13 @@ def count_spaces(string):
     count = 0
     for i in string:
         if (i != '\t') and (i != ' '):
-            continue
+            break
         else:
-            if i == '\t':
+            if (i == '\t'):
                 count += 4
-            if i == ' ':
+            if (i == ' '):
                 count += 1
     return count
-
 
 def count_strings(file):
     lines = sum(1 for line in file)

@@ -278,22 +278,30 @@ class NestingLoops:
                     end.append(num_str)
             nests = 0
             max_nests = 0
-            end.append(INF)
-            begin.append(INF)
+            end.append(99999)
+            begin.append(99999)
             i = 0
             j = 0
-            while (begin[i] != INF) and (end[j] != INF):
+            first_entry = -1
+            while (begin[i] != 99999) and (end[j] != 99999):
                 # print begin[i]
                 # print end[j]
                 if begin[i] < end[j]:
                     nests += 1
                     if max_nests < nests:
                         max_nests = nests
+                        first_entry = begin[i] + 1
                     i += 1
                 if begin[i] >= end[j]:
                     nests -= 1
                     j += 1
-        return {'{0}'.format(max_nests): 1}
+        result = {'max_nests': max_nests}
+        if verbose:
+            result['max_nests'] = {
+                'count': max_nests,
+                'line': first_entry,
+            }
+        return result
 
     def discretize(self, values):
         discrete_values = {}
@@ -313,22 +321,36 @@ class NestingLoops:
     def inspect(self, discrete, values):
         value = list(values.keys())[0]
         percent = 0.0
+        print(values['max_nests']['count'])
         for group in self.discrete_groups:
-            if group['from'] <= int(value) <= group['to']:
+            if group['from'] <= values['max_nests']['count'] <= group['to']:
                 value_group = group
                 percent += discrete[group['name']]
-            elif int(value) <= group['from']:
+            elif int(values['max_nests']['count']) <= group['from']:
                 # If file contains fewer loops it's ok
                 percent += discrete[group['name']]
         inspections = {}
         too_many_loops = 'too_many_loops'
         more_loops_than_needed = 'more_loops_than_needed'
         if value_group['name'] == 'From5ToInf':
-            inspections[too_many_loops] = {'message': self.inspections[too_many_loops]}
+            inspections[too_many_loops] = {
+                'message': self.inspections[too_many_loops],
+                'lines': values['max_nests']['line'],
+            }
+            inspections[too_many_loops] = {
+                'message': self.inspections[too_many_loops],
+                'lines': values['max_nests']['line'],
+            }
         elif percent < 0.1:
-            inspections[more_loops_than_needed] = {'message': self.inspections[more_loops_than_needed]}
+            inspections[more_loops_than_needed] = {
+                'message': self.inspections[more_loops_than_needed],
+                'lines': values['max_nests']['line'],
+            }
         elif percent < 0.2:
-            inspections[more_loops_than_needed] = {'message': self.inspections[more_loops_than_needed]}
+            inspections[more_loops_than_needed] = {
+                'message': self.inspections[more_loops_than_needed],
+                'lines': values['max_nests']['line'],
+            }
         return inspections
 
 

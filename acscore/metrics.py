@@ -229,7 +229,7 @@ class NestingLoops:
         },
     ]
     inspections = {
-        'too_many_loops': ' You definitely can write it better! ',
+        'too_many_loops': ' You definitely can write this file using less loops! ',
         'more_loops_than_needed': ' Too many loops comparing to the repository. ',
     }
 

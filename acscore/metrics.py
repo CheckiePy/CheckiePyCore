@@ -282,7 +282,7 @@ class NestingLoops:
             begin.append(99999)
             i = 0
             j = 0
-            first_entry = -1
+            first_entry = 0
             while (begin[i] != 99999) and (end[j] != 99999):
                 # print begin[i]
                 # print end[j]
@@ -299,7 +299,7 @@ class NestingLoops:
         if verbose:
             result['max_nests'] = {
                 'count': max_nests,
-                'line': first_entry,
+                'line': [first_entry],
             }
         return result
 

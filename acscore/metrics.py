@@ -389,7 +389,7 @@ class FunctionLength:
     ]
     inspections = {
         'function_too_long': 'Less than {0}% of your functions have approximately same size.'
-                             ' Maybe you need to split this function in parts.'
+                             ' Maybe you need to split function in this file in parts.'
     }
 
     """ Number of lines in functions. Verbose version doesn't require specific logic. """

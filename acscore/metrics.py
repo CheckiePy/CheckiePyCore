@@ -299,7 +299,7 @@ class NestingLoops:
         if verbose:
             result['max_nests'] = {
                 'count': max_nests,
-                'line': [first_entry],
+                'lines': [first_entry],
             }
         return result
 

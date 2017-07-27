@@ -229,7 +229,7 @@ class NestingLoops:
         },
     ]
     inspections = {
-        'too_many_loops': ' You definitely can write it better! ',
+        'too_many_loops': ' You definitely can write this file using less loops! ',
         'more_loops_than_needed': ' Too many loops comparing to the repository. ',
     }
 
@@ -282,7 +282,7 @@ class NestingLoops:
             begin.append(99999)
             i = 0
             j = 0
-            first_entry = -1
+            first_entry = 0
             while (begin[i] != 99999) and (end[j] != 99999):
                 # print begin[i]
                 # print end[j]
@@ -389,7 +389,7 @@ class FunctionLength:
     ]
     inspections = {
         'function_too_long': 'Less than {0}% of your functions have approximately same size.'
-                             ' Maybe you need to split this function in parts.'
+                             ' Maybe you need to split function in this file in parts.'
     }
 
     """ Number of lines in functions. Verbose version doesn't require specific logic. """

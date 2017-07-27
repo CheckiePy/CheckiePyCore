@@ -1,10 +1,10 @@
 import unittest
 
 # Imports are implicitly used by unittest package
-from test.analyzer_test import AnalyzerTest
-from test.function_name_case_test import FunctionNameCaseTest
 from test.file_length_test import FileLengthTest
-from test.nesting_loops_test import NestingLoopsTest
+# from test.analyzer_test import AnalyzerTest
+# from test.function_name_case_test import FunctionNameCaseTest
+# from test.nesting_loops_test import NestingLoopsTest
 
 
 if __name__ == '__main__':

@@ -10,7 +10,7 @@
 
 ### 2. Setup
 
-```
+```bash
 git clone https://github.com/acsproj/acscore.git
 cd acscore
 python3 -m venv venv
@@ -24,12 +24,12 @@ pip3 install -r requirements.txt
 
 Get metrics for file or directory:
 
-```
+```bash
 python3 countercli.py <path to file or directory>
 ```
 
 Get inspections for file or directory:
-```
+```bash
 python3 analyzecli.py <path to file for analyze> <path to file with metrics>
 ```
 
@@ -39,21 +39,21 @@ python3 analyzecli.py <path to file for analyze> <path to file with metrics>
 
 #### 3.3. Run tests
 
-```
+```bash
 python3 test.py
 ```
 
 ### 4. Implemented metrics
 
-* FileLength
-* FunctionNameCase
-* NestingLoops
-* ClassNameCase
-* IndentType'
+- [x] FileLength
+- [ ] FunctionNameCase
+- [ ] NestingLoops
+- [ ] ClassNameCase
+- [ ] IndentType
 
 ### 5. Report format
 
-```
+```json
 {
     "metric_name1":
     {
@@ -118,7 +118,7 @@ class MetricName:
 
 * Count method should return an output in next format (non verbose):
 
-```
+```json
 {
     "metric_value1": count_of_occurences,
     "metric_value2": ...,
@@ -127,7 +127,7 @@ class MetricName:
 ```
 
 and in verbose format:
-```
+```json
 {
     "metric_value1":
     {
@@ -141,7 +141,7 @@ and in verbose format:
 
 ##### 6.3.2. Discretize method
 
-```
+```json
 {
     "metric_value1": percent_in_float_format,
     "metric_value2": ...,
@@ -153,7 +153,7 @@ For example 10% in float format is 0.1.
 
 ##### 6.3.3. Inspect method
 
-```
+```json
 {
     "inspection_name1":
     {
@@ -165,7 +165,7 @@ For example 10% in float format is 0.1.
 }
 ```
 
-If inspection isn't applicable to any line then "lines" property should be omitted.
+If inspection isn't applicable to some line then "lines" property should be omitted.
 
 # License
 

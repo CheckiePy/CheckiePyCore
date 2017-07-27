@@ -46,9 +46,9 @@ python3 test.py
 ### 4. Implemented metrics
 
 - [x] FileLength
-- [ ] FunctionNameCase
-- [ ] NestingLoops
+- [x] FunctionNameCase
 - [ ] ClassNameCase
+- [ ] NestingLoops
 - [ ] IndentType
 
 ### 5. Report format

@@ -15,6 +15,7 @@ INF = 99999
 
 
 class FileLength:
+    TOO_MANY_LINES = 'too_many_lines'
     discrete_groups = [
         {
             'name': 'From0To40',
@@ -48,8 +49,8 @@ class FileLength:
         },
     ]
     inspections = {
-        'too_many_lines': ' File too long ' 
-                          ' According to the repo scan we recommend you to split this file into parts. '
+        TOO_MANY_LINES: ' File too long ' 
+                        ' According to the repo scan we recommend you to split this file into parts. '
     }
 
     """ Number of lines in file. Verbose version doesn't require specific logic. """

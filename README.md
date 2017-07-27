@@ -2,6 +2,8 @@
 
 ## Getting started
 
+[![Build Status](https://travis-ci.org/acsproj/acscore.svg?branch=master)](https://travis-ci.org/acsproj/acscore)
+
 ### 1. Prerequisites
 
 * Python 3.5

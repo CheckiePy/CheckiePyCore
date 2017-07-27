@@ -4,7 +4,7 @@ import ast
 IMPLEMENTED_METRICS = [
     'FileLength',
     'FunctionNameCase',
-    'NestingLoops',
+    #'NestingLoops',
     'MaxFunctionLength',
     #'FunctionLength',
     'ClassNameCase',
@@ -237,72 +237,74 @@ class NestingLoops:
     """ Number of nesting loops in files. Verbose version doesn't require specific logic. """
 
     def count(self, file, verbose=False):
-        level = 0
-        begin = []
-        end = []
-        num_spaces = []
-        num_str = -1
+        # level = 0
+        # begin = []
+        # end = []
+        # num_spaces = []
+        # num_str = -1
         with open(file) as f:
-            while True:
-                x = f.readline()
-                if not x: break
-                num_str += 1
-                result1 = re.search(r'^([ ]|[\t])*for', x)
-                if result1 is not None:
-                    begin.append(num_str)
-                result2 = re.search(r'^([ ]|[\t])*while', x)
-                if result2 is not None:
-                    begin.append(num_str)
-                    # print num_str
-            f.seek(0)
-            num_str = -1
-            prev = 0
-            while True:
-                x = f.readline()
-                if not x: break
-                if x == "\n":
-                    num_spaces.append(0)
-                    continue
-                prev = count_spaces(x)
-                num_spaces.append(prev)
-            f.seek(0)
-            num_str = count_strings(f)
-            f.seek(0)
-            for i in begin:
-                for j in range(i + 1, num_str):
-                    if num_spaces[j] <= num_spaces[i]:
-                        end.append(j)
-                        break
-            end.sort()
-            if not end:
-                for i in begin:
-                    end.append(num_str)
             nests = 0
             max_nests = 0
-            end.append(99999)
-            begin.append(99999)
-            i = 0
-            j = 0
-            first_entry = 0
-            while (begin[i] != 99999) and (end[j] != 99999):
-                # print begin[i]
-                # print end[j]
-                if begin[i] < end[j]:
-                    nests += 1
-                    if max_nests < nests:
-                        max_nests = nests
-                        first_entry = begin[i] + 1
+            line_ind = 0
+            prev_spaces = [0, 0]
+            balance_list = [[0, 0]]
+            i = 1
+            was_cycle = False
+            while True:
+                s = f.readline()
+                if not s:
+                    break
+                if self.is_spaces(s):
                     i += 1
-                if begin[i] >= end[j]:
-                    nests -= 1
-                    j += 1
+                    continue
+
+                spaces = self.count_spaces_pair(s)
+                #print(i, spaces, prev_spaces, was_cycle)
+                if spaces > prev_spaces and was_cycle:
+                    nests += 1
+                    balance_list.append(spaces)
+                if spaces < prev_spaces:
+                    while len(balance_list) > 0 and balance_list[-1] > spaces:
+                        balance_list.remove(balance_list[-1])
+                        nests -= 1
+
+                cur_nests = 0
+                dict = ["while ", "for ", "while(", "for("]
+                for j in range(len(s)):
+                    for word in dict:
+                        if s[j: min(j + len(word), len(s))] == word:
+                            cur_nests += 1
+                was_cycle = cur_nests > 0
+
+                if was_cycle and nests + cur_nests > max_nests:
+                    max_nests = nests + cur_nests
+                    line_ind = i
+
+                prev_spaces = spaces
+                i += 1
+
         result = {'max_nests': max_nests}
         if verbose:
             result['max_nests'] = {
                 'count': max_nests,
-                'lines': [first_entry],
+                'lines': [line_ind],
             }
         return result
+
+    def is_spaces(self, s):
+        for x in s:
+            if x != ' ' and x != '\t' and x != '\n':
+                return False
+        return True
+
+    def count_spaces_pair(self, s):
+        res = [0, 0]
+        for x in s:
+            if x == ' ':
+                res[0] += 1
+            if x == '\t':
+                res[1] += 1
+        return res
 
     def discretize(self, values):
         discrete_values = {}

@@ -1,10 +1,10 @@
-from acscore.metric.file_length import FileLength
-from acscore.metric.function_name_case import FunctionNameCase
-from acscore.metric.nesting_loops import NestingLoops
-from acscore.metric.function_length import FunctionLength
-from acscore.metric.class_name_case import ClassNameCase
-from acscore.metric.max_function_length import MaxFunctionLength
-from acscore.metric.ident_type import IndentType
+from .metric.file_length import FileLength
+from .metric.function_name_case import FunctionNameCase
+from .metric.nesting_loops import NestingLoops
+from .metric.function_length import FunctionLength
+from .metric.class_name_case import ClassNameCase
+from .metric.max_function_length import MaxFunctionLength
+from .metric.ident_type import IndentType
 
 
 IMPLEMENTED_METRICS = [

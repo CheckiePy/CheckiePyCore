@@ -10,7 +10,7 @@
 
 ### 2. Setup
 
-```bash
+```
 git clone https://github.com/acsproj/acscore.git
 cd acscore
 python3 -m venv venv
@@ -24,12 +24,12 @@ pip3 install -r requirements.txt
 
 Get metrics for file or directory:
 
-```bash
+```
 python3 countercli.py <path to file or directory>
 ```
 
 Get inspections for file or directory:
-```bash
+```
 python3 analyzecli.py <path to file for analyze> <path to file with metrics>
 ```
 
@@ -39,7 +39,7 @@ python3 analyzecli.py <path to file for analyze> <path to file with metrics>
 
 #### 3.3. Run tests
 
-```bash
+```
 python3 test.py
 ```
 
@@ -54,7 +54,7 @@ python3 test.py
 
 ### 5. Report format
 
-```json
+```
 {
     "metric_name1":
     {
@@ -109,9 +109,9 @@ class MetricName:
 
 #### 6.2. Placing
 
-* Metric class should be placed in metrics.py file.
+* Metric class should be placed in separate file under metric directory.
 
-* Class name of implemeted metric should be added to IMPLEMENTED_METRICS dictionary.
+* Class name of implemented metric should be registered in IMPLEMENTED_METRICS dictionary in metrics.py.
 
 #### 6.3. Output
 
@@ -119,7 +119,7 @@ class MetricName:
 
 * Count method should return an output in next format (non verbose):
 
-```json
+```
 {
     "metric_value1": count_of_occurences,
     "metric_value2": ...,
@@ -128,7 +128,7 @@ class MetricName:
 ```
 
 and in verbose format:
-```json
+```
 {
     "metric_value1":
     {
@@ -142,7 +142,7 @@ and in verbose format:
 
 ##### 6.3.2. Discretize method
 
-```json
+```
 {
     "metric_value1": percent_in_float_format,
     "metric_value2": ...,
@@ -154,7 +154,7 @@ For example 10% in float format is 0.1.
 
 ##### 6.3.3. Inspect method
 
-```json
+```
 {
     "inspection_name1":
     {

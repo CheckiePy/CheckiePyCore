@@ -4,7 +4,7 @@ from .metric.nesting_loops import NestingLoops
 from .metric.function_length import FunctionLength
 from .metric.class_name_case import ClassNameCase
 from .metric.max_function_length import MaxFunctionLength
-from .metric.ident_type import IndentType
+from .metric.indent_type import IndentType
 
 
 IMPLEMENTED_METRICS = [

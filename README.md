@@ -48,7 +48,7 @@ python3 test.py
 - [x] FileLength
 - [x] FunctionNameCase
 - [x] ClassNameCase
-- [ ] IndentType
+- [x] IndentType
 - [ ] NestingLoops
 
 

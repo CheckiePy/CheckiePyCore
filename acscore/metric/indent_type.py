@@ -19,7 +19,7 @@ class IndentType:
         with open(file) as f:
             spaces_count = 0
             tabs_count = 0
-            for line in f:
+            for line in f.readlines():
                 if line[:2] == '  ':
                     spaces_count += 1
                 if line[:1] == '\t':

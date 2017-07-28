@@ -28,7 +28,7 @@ class FunctionNameCase:
             root = ast.parse(f.read())
             names = [(node.name, node.lineno) for node in ast.walk(root) if isinstance(node, ast.FunctionDef)]
 
-            # Group all function names in three groups
+            # Split all function names in three groups
             underscore_count = 0
             underscore_lines = []
             camelcase_count = 0
@@ -114,7 +114,7 @@ class FunctionNameCase:
 
         inspections = {}
 
-        # Issue messages for all bad styles names
+        # Issue messages for all bad styled names
         if file_discrete['other'] > 0.0:
             inspections[self.NO_STYLE] = {
                 'message': self.inspections[self.NO_STYLE],

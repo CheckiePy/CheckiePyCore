@@ -9,6 +9,5 @@ from test.nesting_loops_test import NestingLoopsTest
 from test.analyzer_test import AnalyzerTest
 
 
-
 if __name__ == '__main__':
     unittest.main()

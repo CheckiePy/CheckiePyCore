@@ -35,7 +35,7 @@ python3 analyzecli.py <path to file for analyze> <path to file with metrics>
 
 #### 3.2. From code
 
-* TODO
+* Look at analyzercli.py and countercli.py for guidance.
 
 #### 3.3. Run tests
 
@@ -49,8 +49,7 @@ python3 test.py
 - [x] FunctionNameCase
 - [x] ClassNameCase
 - [x] IndentType
-- [ ] NestingLoops
-
+- [x] NestingLoops
 
 ### 5. Report format
 

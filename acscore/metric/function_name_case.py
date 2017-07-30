@@ -118,19 +118,19 @@ class FunctionNameCase:
         if file_discrete['other'] > 0.0:
             inspections[self.NO_STYLE] = {
                 'message': self.inspections[self.NO_STYLE],
-                'lines': values['other']['lines'],
+                'lines': values['other']['lines'][:],
             }
 
         # Issue messages for all undersored names if camel case is prevail (or overwise)
         if is_camelcase and file_discrete['underscore'] > 0.0:
             inspections[self.NEED_TO_USE_CAMEL_CASE] = {
                 'message': self.inspections[self.NEED_TO_USE_CAMEL_CASE].format(discrete['camelcase'] * 100),
-                'lines': values['underscore']['lines'],
+                'lines': values['underscore']['lines'][:],
             }
         elif not is_camelcase and file_discrete['camelcase'] > 0.0:
             inspections[self.NEED_TO_USE_UNDERSCORE] = {
                 'message': self.inspections[self.NEED_TO_USE_UNDERSCORE].format(discrete['underscore'] * 100),
-                'lines': values['camelcase']['lines'],
+                'lines': values['camelcase']['lines'][:],
             }
 
         return inspections

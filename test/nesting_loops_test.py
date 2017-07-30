@@ -8,8 +8,9 @@ from acscore import metrics
 
 class NestingLoopsTest(unittest.TestCase):
     def setUp(self):
-        self.data1 = {'0': 7, '2': 2, '5': 1}
-        self.data2 = {'0': 15, '4': 5, '7': 3, '15': 2}
+        self.data1 = {'1': 7, '2': 2, '5': 1}
+        self.data2 = {'1': 15, '4': 5, '7': 3, '15': 2}
+        self.data3 = {'1': 3, '3': 15, '10': 2}
         self.nesting_loops = metrics.NestingLoops()
         self.files = [
             'for x in range(10):\n for y in range(20): pass\n\nfor x in range(1):\n for y in range(2):\n  for z in range(3): pass\n',
@@ -56,17 +57,47 @@ class NestingLoopsTest(unittest.TestCase):
         }
         self.assertEqual(expected2, result2)
 
-    # TODO: uncomment and fix bug
-    # def test_inspect(self):
-    #     discrete = self.nl.discretize(self.data1)
-    #     result1 = self.nl.inspect(discrete, {'0': 1})
-    #     self.assertEqual({}, result1)
-    #     result2 = self.nl.inspect(discrete, {'1000': 1})
-    #     expected = {
-    #         'too_many_loops':
-    #             {
-    #                 'message': 'Less than 5% of files have approximately same depth of loops.'
-    #                            ' Maybe you need to make less loops.'
-    #             }
-    #     }
-    #     self.assertEqual(expected, result2)
+    def test_inspect(self):
+        discrete = self.nesting_loops.discretize(self.data2)
+        result1 = self.nesting_loops.inspect(discrete, {'2': {'count': 1, 'lines': [2]}})
+        self.assertEqual({}, result1)
+
+        values = {
+            '2': {
+                'count': 3,
+                'lines': [10, 20, 30],
+            },
+            '3': {
+                'count': 1,
+                'lines': [50],
+            },
+            '4': {
+                'count': 2,
+                'lines': [60, 70],
+            },
+            '7': {
+                'count': 1,
+                'lines': [80],
+            },
+            '10': {
+                'count': 1,
+                'lines': [90],
+            },
+        }
+        discrete['From3To4'] = 0.0
+        result2 = self.nesting_loops.inspect(discrete, values)
+        expected2 = {
+            metrics.NestingLoops.EXTREMELY_MANY_LOOPS: {
+                'message': metrics.NestingLoops.inspections[metrics.NestingLoops.EXTREMELY_MANY_LOOPS],
+                'lines': [80, 90],
+            },
+        }
+        self.assertEqual(expected2, result2)
+
+        discrete = self.nesting_loops.discretize(self.data3)
+        expected2[metrics.NestingLoops.TOO_MANY_LOOPS] = {
+            'message': metrics.NestingLoops.inspections[metrics.NestingLoops.TOO_MANY_LOOPS],
+            'lines': [50, 60, 70],
+        }
+        result3 = self.nesting_loops.inspect(discrete, values)
+        self.assertEqual(expected2, result3)

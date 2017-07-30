@@ -144,4 +144,8 @@ class NestingLoops:
                     'lines': values[loop_count]['lines'][:],
                 }
 
+        # Sort line numbers
+        for key in inspections.keys():
+            inspections[key]['lines'] = sorted(inspections[key]['lines'])
+
         return inspections

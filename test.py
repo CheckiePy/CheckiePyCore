@@ -7,7 +7,7 @@ from test.class_name_case_test import ClassNameCaseTest
 from test.indent_type_test import IndentTypeTest
 from test.nesting_loops_test import NestingLoopsTest
 from test.analyzer_test import AnalyzerTest
-
+from test.quotes_type_test import QuotesTypeTest
 
 if __name__ == '__main__':
     unittest.main()

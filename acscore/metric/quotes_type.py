@@ -24,15 +24,32 @@ class QuotesType:
             single_quotes_lines = []
             double_quotes_lines = []
             line_number = 0
+
             for line in f.readlines():
                 line_number += 1
-                for i in line:
-                    if i == '\'':
-                        single_quotes_count += 1
-                        single_quotes_lines.append(line_number)
-                    if i == '\"':
-                        double_quotes_count += 1
-                        double_quotes_lines.append(line_number)
+                is_single = False
+                is_double = False
+                for i in range(len(line)):
+                    if i > 0 and line[i - 1] == '\\':
+                        continue
+                    if line[i] == '\'':
+                        if is_double:
+                            continue
+                        if is_single:
+                            single_quotes_count += 1
+                            single_quotes_lines.append(line_number)
+                            is_single = False
+                        else:
+                            is_single = True
+                    if line[i] == '\"':
+                        if is_single:
+                            continue
+                        if is_double:
+                            double_quotes_count += 1
+                            double_quotes_lines.append(line_number)
+                            is_double = False
+                        else:
+                            is_double = True
 
         single_quotes_lines.sort()
         unique_single_quotes_lines = []

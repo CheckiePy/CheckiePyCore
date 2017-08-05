@@ -15,6 +15,7 @@ class QuotesTypeTest(unittest.TestCase):
         self.files = [
             'a = ["a", "b", "c"]\n b = {"qwe": "asd", 1:2} \n',
             'a = [\'5\', \'6\', "asd"]',
+            'a = "asdasd\'asdasd\'"',
             'while True:\n while True: pass',
             '',
         ]
@@ -22,17 +23,21 @@ class QuotesTypeTest(unittest.TestCase):
     def test_count(self):
         with patch('acscore.metric.quotes_type.open', mock_open(read_data=self.files[0])):
             result1 = self.quotes_type.count('')
-        self.assertEqual({'single_quotes': 0, 'double_quotes': 10}, result1)
+        self.assertEqual({'single_quotes': 0, 'double_quotes': 5}, result1)
 
         with patch('acscore.metric.quotes_type.open', mock_open(read_data=self.files[1])):
             result2 = self.quotes_type.count('')
-        self.assertEqual({'single_quotes': 4, 'double_quotes': 2}, result2)
+        self.assertEqual({'single_quotes': 2, 'double_quotes': 1}, result2)
 
         with patch('acscore.metric.quotes_type.open', mock_open(read_data=self.files[2])):
             result3 = self.quotes_type.count('')
-        self.assertEqual({'single_quotes': 0, 'double_quotes': 0}, result3)
+        self.assertEqual({'single_quotes': 0, 'double_quotes': 1}, result3)
 
         with patch('acscore.metric.quotes_type.open', mock_open(read_data=self.files[3])):
+            result4 = self.quotes_type.count('')
+        self.assertEqual({'single_quotes': 0, 'double_quotes': 0}, result4)
+
+        with patch('acscore.metric.quotes_type.open', mock_open(read_data=self.files[4])):
             result4 = self.quotes_type.count('')
         self.assertEqual({'single_quotes': 0, 'double_quotes': 0}, result4)
 

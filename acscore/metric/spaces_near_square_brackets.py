@@ -47,7 +47,7 @@ class SpacesNearSquareBrackets:
                 if amount_open_brackets_spaces or amount_close_brackets_spaces:
                     spaces_usage_lines.append(line_number)
                 if amount_open_brackets_no_spaces or amount_close_brackets_no_spaces:
-                    spaces_usage_lines.append(line_number)
+                    no_spaces_usage_lines.append(line_number)
 
         # Form result
         result = {

@@ -1,7 +1,9 @@
 import re
 
+
 class SpacesNearRoundBrackets:
     """ Checks whether round brackets are divided from content with spaces. """
+
     NEED_SPACES = 'spaces'
     NEED_NO_SPACES = 'no_spaces'
 
@@ -12,9 +14,9 @@ class SpacesNearRoundBrackets:
 
     inspections = {
         NEED_SPACES: 'Mostly spaces are put near round brackets, '
-                                   'maybe you need to add spaces near round brackets here.',
+                     'maybe you need to add spaces near round brackets here.',
         NEED_NO_SPACES: 'No spaces near round brackets are used in the source code, '
-                                   'maybe it\'s better to remove spaces here.',
+                        'maybe it\'s better to remove spaces here.',
     }
 
     def count(self, file, verbose=False):

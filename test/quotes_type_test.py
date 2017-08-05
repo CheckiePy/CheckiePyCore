@@ -22,6 +22,7 @@ class QuotesTypeTest(unittest.TestCase):
             TableTestCase('', {'single_quotes': 0, 'double_quotes': 0}),
             TableTestCase('s = \'What is "Pineapple"?\'', {'single_quotes': 1, 'double_quotes': 0}),
             TableTestCase('s = "Let\'s go"', {'single_quotes': 0, 'double_quotes': 1}),
+            # TODO
             #TableTestCase('s = "Hello, \"foo \'bar\'\"', {'single_quotes': 0, 'double_quotes': 1}),
             #TableTestCase('s = \'hello ,\'foo "bar"\'', {'single_quotes': 1, 'double_quotes': 0}),
         ]

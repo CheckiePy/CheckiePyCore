@@ -5,6 +5,8 @@ from unittest.mock import mock_open
 
 from acscore import metrics
 
+from .table_test_case import TableTestCase
+
 
 class SpacesNearSquareBracketsTest(unittest.TestCase):
     def setUp(self):
@@ -12,29 +14,21 @@ class SpacesNearSquareBracketsTest(unittest.TestCase):
         self.data2 = {'spaces': 20, 'no_spaces': 80}
         self.data3 = {'spaces': 5, 'no_spaces': 5}
         self.spaces_near_square_brackets = metrics.SpacesNearSquareBrackets()
-        self.files = [
-            'a = [ "a", "b", ["c"] ]\n b = ["qwe": "asd", 1:2] \n',
-            'a = [\'5\', \'6\', "asd"]',
-            'while True(or not):\n while True: pass',
-            '',
+        self.cases = [
+            TableTestCase('a = [ "a", "b", ["c"] ]\n b = ["qwe": "asd", 1:2] \n', {'spaces': 2, 'no_spaces': 4}),
+            TableTestCase('a = [\'5\', \'6\', "asd"]', {'spaces': 0, 'no_spaces': 2}),
+            TableTestCase('while True(or not):\n while True: pass', {'spaces': 0, 'no_spaces': 0}),
+            TableTestCase('', {'spaces': 0, 'no_spaces': 0}),
+            # TODO
+            #TableTestCase('a = "[some]"', {'spaces': 0, 'no_spaces': 0}),
         ]
 
     def test_count(self):
-        with patch('acscore.metric.spaces_near_square_brackets.open', mock_open(read_data=self.files[0])):
-            result1 = self.spaces_near_square_brackets.count('')
-        self.assertEqual({'spaces': 2, 'no_spaces': 4}, result1)
-
-        with patch('acscore.metric.spaces_near_square_brackets.open', mock_open(read_data=self.files[1])):
-            result2 = self.spaces_near_square_brackets.count('')
-        self.assertEqual({'spaces': 0, 'no_spaces': 2}, result2)
-
-        with patch('acscore.metric.spaces_near_square_brackets.open', mock_open(read_data=self.files[2])):
-            result3 = self.spaces_near_square_brackets.count('')
-        self.assertEqual({'spaces': 0, 'no_spaces': 0}, result3)
-
-        with patch('acscore.metric.spaces_near_square_brackets.open', mock_open(read_data=self.files[3])):
-            result4 = self.spaces_near_square_brackets.count('')
-        self.assertEqual({'spaces': 0, 'no_spaces': 0}, result4)
+        for case in self.cases:
+            with patch('acscore.metric.spaces_near_square_brackets.open', mock_open(read_data=case.input)):
+                result = self.spaces_near_square_brackets.count('')
+                self.assertEqual(case.want, result,
+                                 'For input "{0}" want "{1}, but get "{2}"'.format(case.input, case.want, result))
 
     def test_discretize(self):
         result = self.spaces_near_square_brackets.discretize(self.data1)

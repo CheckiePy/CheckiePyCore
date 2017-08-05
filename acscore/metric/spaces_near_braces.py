@@ -1,7 +1,9 @@
 import re
 
+
 class SpacesNearBraces:
     """ Checks whether braces are divided from content with spaces. """
+
     NEED_SPACES = 'spaces'
     NEED_NO_SPACES = 'no_spaces'
 
@@ -12,9 +14,9 @@ class SpacesNearBraces:
 
     inspections = {
         NEED_SPACES: 'Mostly spaces are put near braces, '
-                                   'maybe you need to add spaces near braces here.',
+                     'maybe you need to add spaces near braces here.',
         NEED_NO_SPACES: 'No spaces near braces are used in the source code, '
-                                   'maybe it\'s better to remove spaces here.',
+                        'maybe it\'s better to remove spaces here.',
     }
 
     def count(self, file, verbose=False):

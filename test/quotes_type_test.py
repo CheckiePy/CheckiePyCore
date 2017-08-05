@@ -5,6 +5,8 @@ from unittest.mock import mock_open
 
 from acscore import metrics
 
+from .table_test_case import TableTestCase
+
 
 class QuotesTypeTest(unittest.TestCase):
     def setUp(self):
@@ -12,34 +14,24 @@ class QuotesTypeTest(unittest.TestCase):
         self.data2 = {'single_quotes': 0, 'double_quotes': 0}
         self.data3 = {'single_quotes': 5, 'double_quotes': 5}
         self.quotes_type = metrics.QuotesType()
-        self.files = [
-            'a = ["a", "b", "c"]\n b = {"qwe": "asd", 1:2} \n',
-            'a = [\'5\', \'6\', "asd"]',
-            'a = "asdasd\'asdasd\'"',
-            'while True:\n while True: pass',
-            '',
+        self.cases = [
+            TableTestCase('a = ["a", "b", "c"]\n b = {"qwe": "asd", 1:2} \n', {'single_quotes': 0, 'double_quotes': 5}),
+            TableTestCase('a = [\'5\', \'6\', "asd"]', {'single_quotes': 2, 'double_quotes': 1}),
+            TableTestCase('a = "asdasd\'asdasd\'"', {'single_quotes': 0, 'double_quotes': 1}),
+            TableTestCase('while True:\n while True: pass', {'single_quotes': 0, 'double_quotes': 0}),
+            TableTestCase('', {'single_quotes': 0, 'double_quotes': 0}),
+            TableTestCase('s = \'What is "Pineapple"?\'', {'single_quotes': 1, 'double_quotes': 0}),
+            TableTestCase('s = "Let\'s go"', {'single_quotes': 0, 'double_quotes': 1}),
+            #TableTestCase('s = "Hello, \"foo \'bar\'\"', {'single_quotes': 0, 'double_quotes': 1}),
+            #TableTestCase('s = \'hello ,\'foo "bar"\'', {'single_quotes': 1, 'double_quotes': 0}),
         ]
 
     def test_count(self):
-        with patch('acscore.metric.quotes_type.open', mock_open(read_data=self.files[0])):
-            result1 = self.quotes_type.count('')
-        self.assertEqual({'single_quotes': 0, 'double_quotes': 5}, result1)
-
-        with patch('acscore.metric.quotes_type.open', mock_open(read_data=self.files[1])):
-            result2 = self.quotes_type.count('')
-        self.assertEqual({'single_quotes': 2, 'double_quotes': 1}, result2)
-
-        with patch('acscore.metric.quotes_type.open', mock_open(read_data=self.files[2])):
-            result3 = self.quotes_type.count('')
-        self.assertEqual({'single_quotes': 0, 'double_quotes': 1}, result3)
-
-        with patch('acscore.metric.quotes_type.open', mock_open(read_data=self.files[3])):
-            result4 = self.quotes_type.count('')
-        self.assertEqual({'single_quotes': 0, 'double_quotes': 0}, result4)
-
-        with patch('acscore.metric.quotes_type.open', mock_open(read_data=self.files[4])):
-            result4 = self.quotes_type.count('')
-        self.assertEqual({'single_quotes': 0, 'double_quotes': 0}, result4)
+        for case in self.cases:
+            with patch('acscore.metric.quotes_type.open', mock_open(read_data=case.input)):
+                result = self.quotes_type.count('')
+                self.assertEqual(case.want, result,
+                                 'For input "{0}" want "{1}, but get "{2}"'.format(case.input, case.want, result))
 
     def test_discretize(self):
         result = self.quotes_type.discretize(self.data1)

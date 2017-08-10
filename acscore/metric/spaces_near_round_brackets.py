@@ -27,8 +27,8 @@ class SpacesNearRoundBrackets:
             brackets_with_no_spaces_count = 0
             spaces_usage_lines = []
             no_spaces_usage_lines = []
-            reg_open_space = re.compile(r'(\[\s)|(\[\n)')
-            reg_close_space = re.compile(r'(\s\])|(\s\])')
+            reg_open_space = re.compile(r'(\(\s)|(\(\n)')
+            reg_close_space = re.compile(r'(\s\))|(\s\))')
             reg_open_no_space = re.compile(r'\(\S')
             reg_close_no_space = re.compile(r'\S\)')
 
@@ -63,7 +63,6 @@ class SpacesNearRoundBrackets:
                     spaces_usage_lines.append(line_number)
                 if amount_open_brackets_no_spaces or amount_close_brackets_no_spaces:
                     no_spaces_usage_lines.append(line_number)
-
         # Form result
         result = {
             'spaces': brackets_with_spaces_count,

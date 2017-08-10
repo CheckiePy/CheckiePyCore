@@ -27,8 +27,8 @@ class SpacesNearRoundBrackets:
             brackets_with_no_spaces_count = 0
             spaces_usage_lines = []
             no_spaces_usage_lines = []
-            reg_open_space = re.compile(r'\(\s')
-            reg_close_space = re.compile(r'\s\)')
+            reg_open_space = re.compile(r'(\[\s)|(\[\n)')
+            reg_close_space = re.compile(r'(\s\])|(\s\])')
             reg_open_no_space = re.compile(r'\(\S')
             reg_close_no_space = re.compile(r'\S\)')
 

@@ -21,5 +21,6 @@ class Analyzer:
     def inspect(self, file_metrics):
         inspections = {}
         for metric, values in file_metrics.items():
-            inspections[metric] = self.metric_instances[metric].inspect(self.discrete_values[metric], values)
+            if metric in self.metric_instances:
+                inspections[metric] = self.metric_instances[metric].inspect(self.discrete_values[metric], values)
         return inspections

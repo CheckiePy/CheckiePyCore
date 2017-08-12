@@ -9,7 +9,7 @@ class AnalyzerTest(unittest.TestCase):
         initial_metrics = {
             'FunctionNameCase': {'underscore': 100, 'camelcase': 10, 'other': 15},
             'FileLength': {'5': 10, '35': 5, '100': 4, '105': 6},
-            'NestingLoops': {'0': 2, '2': 1, '1': 1},
+            'OldMetric': {'0': 2, '2': 1, '1': 1},
             # TODO: add other metrics
         }
         a = analyzer.Analyzer(initial_metrics)
@@ -29,7 +29,7 @@ class AnalyzerTest(unittest.TestCase):
                 },
             },
             'FileLength': {'1000': 1},
-            'IndentType': {'spaces': 4, 'tabs': 0},
+            'NewMetric': {'spaces': 4, 'tabs': 0},
         }
         inspections = a.inspect(file_metrics)
         expected = {

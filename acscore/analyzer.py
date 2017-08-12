@@ -14,9 +14,10 @@ class Analyzer:
         self.metric_instances = {}
         self.discrete_values = {}
         for metric, value in self.metrics.items():
-            metric_class = getattr(metrics, metric)
-            self.metric_instances[metric] = metric_class()
-            self.discrete_values[metric] = self.metric_instances[metric].discretize(value)
+            if hasattr(metrics, metric):
+                metric_class = getattr(metrics, metric)
+                self.metric_instances[metric] = metric_class()
+                self.discrete_values[metric] = self.metric_instances[metric].discretize(value)
 
     def inspect(self, file_metrics):
         inspections = {}

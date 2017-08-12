@@ -21,6 +21,8 @@ class SpacesNearBracesTest(unittest.TestCase):
             TableTestCase('', {'spaces': 0, 'no_spaces': 0}),
             TableTestCase('a = "{some}"', {'spaces': 0, 'no_spaces': 0}),
             TableTestCase('a = {\n"hello": "world"\n}', {'spaces': 1, 'no_spaces': 0}),
+            TableTestCase("a = '{text}'", {'spaces': 0, 'no_spaces': 0}),
+            TableTestCase('a = {\n  "hello": "world"  }', {'spaces': 2, 'no_spaces': 0}),
         ]
 
     def test_count(self):

@@ -19,10 +19,8 @@ class SpacesNearBracesTest(unittest.TestCase):
             TableTestCase('a = {\'5\', \'6\', "asd"}', {'spaces': 0, 'no_spaces': 2}),
             TableTestCase('while True\t{or not } :\n while True: pass', {'spaces': 1, 'no_spaces': 1}),
             TableTestCase('', {'spaces': 0, 'no_spaces': 0}),
-            # TODO
-            #TableTestCase('a = "{some}"', {'spaces': 0, 'no_spaces': 0}),
-            # TODO: I don't know right answer for this case (I think we need additional group like newline or something else)
-            #TableTestCase('a = {\n"hello": "world"\n}', {'spaces': 0, 'no_spaces': 0}),
+            TableTestCase('a = "{some}"', {'spaces': 0, 'no_spaces': 0}),
+            TableTestCase('a = {\n"hello": "world"\n}', {'spaces': 1, 'no_spaces': 0}),
         ]
 
     def test_count(self):
@@ -30,7 +28,7 @@ class SpacesNearBracesTest(unittest.TestCase):
             with patch('acscore.metric.spaces_near_braces.open', mock_open(read_data=case.input)):
                 result = self.spaces_near_braces.count('')
                 self.assertEqual(case.want, result,
-                                 'For input "{0}" want "{1}, but get "{2}"'.format(case.input, case.want, result))
+                                 'For input "{0}" want "{1}", but get "{2}"'.format(case.input, case.want, result))
 
     def test_discretize(self):
         result = self.spaces_near_braces.discretize(self.data1)

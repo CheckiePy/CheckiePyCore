@@ -27,19 +27,32 @@ class SpacesNearRoundBrackets:
             brackets_with_no_spaces_count = 0
             spaces_usage_lines = []
             no_spaces_usage_lines = []
-            reg_open_space =  re.compile(r'\(\s')
-            reg_close_space = re.compile(r'\s\)')
+            reg_open_space = re.compile(r'(\(\s)|(\(\n)')
+            reg_close_space = re.compile(r'(\s\))|(\s\))')
             reg_open_no_space = re.compile(r'\(\S')
             reg_close_no_space = re.compile(r'\S\)')
 
             line_number = 0
+            single_quote = False
+            double_quote = False
             for line in f.readlines():
                 line_number += 1
 
-                amount_open_brackets_spaces = len(reg_open_space.findall(line))
-                amount_open_brackets_no_spaces = len(reg_open_no_space.findall(line))
-                amount_close_brackets_spaces = len(reg_close_space.findall(line))
-                amount_close_brackets_no_spaces = len(reg_close_no_space.findall(line))
+                no_quote = ""
+                for i in range(len(line)):
+                    if not single_quote and not double_quote:
+                        no_quote += line[i]
+                    if i > 0 and line[i - 1] == '\\':
+                        continue
+                    if line[i] == '\'':
+                        single_quote = not single_quote
+                    if line[i] == '\"':
+                        double_quote = not double_quote
+
+                amount_open_brackets_spaces = len(reg_open_space.findall(no_quote))
+                amount_open_brackets_no_spaces = len(reg_open_no_space.findall(no_quote))
+                amount_close_brackets_spaces = len(reg_close_space.findall(no_quote))
+                amount_close_brackets_no_spaces = len(reg_close_no_space.findall(no_quote))
 
                 brackets_with_spaces_count += amount_open_brackets_spaces
                 brackets_with_spaces_count += amount_close_brackets_spaces
@@ -50,7 +63,6 @@ class SpacesNearRoundBrackets:
                     spaces_usage_lines.append(line_number)
                 if amount_open_brackets_no_spaces or amount_close_brackets_no_spaces:
                     no_spaces_usage_lines.append(line_number)
-
         # Form result
         result = {
             'spaces': brackets_with_spaces_count,

@@ -19,8 +19,7 @@ class SpacesNearRoundBracketsTest(unittest.TestCase):
             TableTestCase('a = [\'5\', \'6\', "asd"]', {'spaces': 0, 'no_spaces': 0}),
             TableTestCase('while True(or not):\n while True: pass', {'spaces': 0, 'no_spaces': 2}),
             TableTestCase('', {'spaces': 0, 'no_spaces': 0}),
-            # TODO
-            #TableTestCase('a = "(some)"', {'spaces': 0, 'no_spaces': 0}),
+            TableTestCase('a = "(some)"', {'spaces': 0, 'no_spaces': 0}),
         ]
 
     def test_count(self):
@@ -28,7 +27,7 @@ class SpacesNearRoundBracketsTest(unittest.TestCase):
             with patch('acscore.metric.spaces_near_round_brackets.open', mock_open(read_data=case.input)):
                 result = self.spaces_near_round_brackets.count('')
                 self.assertEqual(case.want, result,
-                                 'For input "{0}" want "{1}, but get "{2}"'.format(case.input, case.want, result))
+                                 'For input "{0}" want "{1}", but get "{2}"'.format(case.input, case.want, result))
 
     def test_discretize(self):
         result = self.spaces_near_round_brackets.discretize(self.data1)

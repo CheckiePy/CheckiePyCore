@@ -6,10 +6,12 @@ class SpacesNearBraces:
 
     NEED_SPACES = 'spaces'
     NEED_NO_SPACES = 'no_spaces'
+    NEED_NEW_LINES = 'new_lines'
 
     discrete_groups = [
         { 'name': 'spaces' },
         { 'name': 'no_spaces' },
+        { 'name': 'new_lines'}
     ]
 
     inspections = {
@@ -17,6 +19,8 @@ class SpacesNearBraces:
                      'maybe you need to add spaces near braces here.',
         NEED_NO_SPACES: 'No spaces near braces are used in the source code, '
                         'maybe it\'s better to remove spaces here.',
+        NEED_NEW_LINES: 'New lines are used in source code mostly, '
+                        'you should use them here too',
     }
 
     def count(self, file, verbose=False):
@@ -25,10 +29,16 @@ class SpacesNearBraces:
 
             brackets_with_spaces_count = 0
             brackets_with_no_spaces_count = 0
+            brackets_with_new_line_count = 0
+
             spaces_usage_lines = []
             no_spaces_usage_lines = []
-            reg_open_space = re.compile(r'(\{\s)|(\{\n)')
-            reg_close_space = re.compile(r'(\s\})|(\s\})')
+            new_line_usage_lines = []
+
+            reg_open_space = re.compile(r'(\{ )')
+            reg_close_space = re.compile(r'( \})')
+            reg_open_new_line = re.compile(r'(\{\n)')
+            reg_close_new_line = re.compile(r'\n\}')
             reg_open_no_space = re.compile(r'\{\S')
             reg_close_no_space = re.compile(r'\S\}')
 
@@ -53,20 +63,28 @@ class SpacesNearBraces:
                 amount_open_brackets_no_spaces = len(reg_open_no_space.findall(no_quote))
                 amount_close_brackets_spaces = len(reg_close_space.findall(no_quote))
                 amount_close_brackets_no_spaces = len(reg_close_no_space.findall(no_quote))
+                amount_open_brackets_new_line = len(reg_open_new_line.findall(no_quote))
+                amount_close_brackets_new_line = len(reg_close_new_line.findall(no_quote))
 
                 brackets_with_spaces_count += amount_open_brackets_spaces
                 brackets_with_spaces_count += amount_close_brackets_spaces
                 brackets_with_no_spaces_count += amount_open_brackets_no_spaces
                 brackets_with_no_spaces_count += amount_close_brackets_no_spaces
+                brackets_with_new_line_count += amount_open_brackets_new_line
+                brackets_with_new_line_count += amount_close_brackets_new_line
 
                 if amount_open_brackets_spaces or amount_close_brackets_spaces:
                     spaces_usage_lines.append(line_number)
                 if amount_open_brackets_no_spaces or amount_close_brackets_no_spaces:
                     no_spaces_usage_lines.append(line_number)
+                if amount_open_brackets_new_line or amount_close_brackets_new_line:
+                    new_line_usage_lines.append(line_number)
+
         # Form result
         result = {
             'spaces': brackets_with_spaces_count,
             'no_spaces': brackets_with_no_spaces_count,
+            'new_lines': brackets_with_new_line_count,
         }
 
         if verbose:
@@ -76,9 +94,14 @@ class SpacesNearBraces:
             }
             result['no_spaces'] = {
                 'count': brackets_with_no_spaces_count,
-                'lines': spaces_usage_lines,
+                'lines': no_spaces_usage_lines,
+            }
+            result['new_lines'] = {
+                'count': brackets_with_new_line_count,
+                'lines': new_line_usage_lines,
             }
         return result
+
 
     def discretize(self, values):
         discrete_values = {}
@@ -110,21 +133,60 @@ class SpacesNearBraces:
 
         # Check if spaces existance is prevailing
         spaces = False
-        if discrete['spaces'] > discrete['no_spaces']:
+        no_spaces = False
+
+        if max(discrete['spaces'], discrete['no_spaces'], discrete['new_lines']) == discrete['spaces']:
             spaces = True
+        elif max(discrete['spaces'], discrete['no_spaces'], discrete['new_lines']) == discrete['no_spaces']:
+            no_spaces = True
 
         inspections = {}
 
         # Issue messages for all braces where spaces after or before prevail (or overwise)
-        if spaces and file_discrete['no_spaces'] > 0.0:
-            inspections[self.NEED_SPACES] = {
-                'message': self.inspections[self.NEED_SPACES].format(discrete['spaces'] * 100),
-                'lines': values['no_spaces']['lines'][:],
-            }
-        elif not spaces and file_discrete['spaces'] > 0.0:
-            inspections[self.NEED_NO_SPACES] = {
-                'message': self.inspections[self.NEED_NO_SPACES].format(discrete['no_spaces'] * 100),
-                'lines': values['spaces']['lines'][:],
-            }
+        if spaces:
+            if file_discrete['no_spaces'] > 0.0:
+                if self.NEED_SPACES not in inspections:
+                    inspections[self.NEED_SPACES] = {
+                        'message': self.inspections[self.NEED_SPACES],
+                        'lines': []
+                    }
+                inspections[self.NEED_SPACES]['lines'] += values['no_spaces']['lines']
+            if file_discrete['new_lines'] > 0.0:
+                if self.NEED_SPACES not in inspections:
+                    inspections[self.NEED_SPACES] = {
+                        'message': self.inspections[self.NEED_SPACES],
+                        'lines': []
+                    }
+                inspections[self.NEED_SPACES]['lines'] += values['new_lines']['lines']
+        elif no_spaces:
+            if file_discrete['spaces'] > 0.0:
+                if self.NEED_NO_SPACES not in inspections:
+                    inspections[self.NEED_NO_SPACES] = {
+                        'message': self.inspections[self.NEED_NO_SPACES],
+                        'lines': []
+                    }
+                inspections[self.NEED_NO_SPACES]['lines'] += values['spaces']['lines']
+            if file_discrete['new_lines'] > 0.0:
+                if self.NEED_NO_SPACES not in inspections:
+                    inspections[self.NEED_NO_SPACES] = {
+                        'message': self.inspections[self.NEED_NO_SPACES],
+                        'lines': []
+                    }
+                inspections[self.NEED_NO_SPACES]['lines'] += values['new_lines']['lines']
+        else:
+            if file_discrete['spaces'] > 0.0:
+                if self.NEED_NEW_LINES not in inspections:
+                    inspections[self.NEED_NEW_LINES] = {
+                        'message': self.inspections[self.NEED_NEW_LINES],
+                        'lines': []
+                    }
+                inspections[self.NEED_NEW_LINES]['lines'] += values['spaces']['lines']
+            if file_discrete['no_spaces'] > 0.0:
+                if self.NEED_NEW_LINES not in inspections:
+                    inspections[self.NEED_NEW_LINES] = {
+                        'message': self.inspections[self.NEED_NEW_LINES],
+                        'lines': []
+                    }
+                inspections[self.NEED_NEW_LINES]['lines'] += values['no_spaces']['lines']
 
         return inspections

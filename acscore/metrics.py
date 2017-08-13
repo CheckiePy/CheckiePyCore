@@ -17,5 +17,5 @@ IMPLEMENTED_METRICS = [
     QuotesType.__name__,
     SpacesNearRoundBrackets.__name__,
     SpacesNearBraces.__name__,
-    SpacesNearSquareBrackets.__name__
+    SpacesNearSquareBrackets.__name__,
 ]

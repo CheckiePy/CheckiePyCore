@@ -11,6 +11,7 @@ from test.quotes_type_test import QuotesTypeTest
 from test.spaces_near_round_brackets_test import SpacesNearRoundBracketsTest
 from test.spaces_near_braces_test import SpacesNearBracesTest
 from test.spaces_near_square_brackets_test import SpacesNearSquareBracketsTest
+from test.import_order_test import ImportOrderTest
 
 if __name__ == '__main__':
     unittest.main()

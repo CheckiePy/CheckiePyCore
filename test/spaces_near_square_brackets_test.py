@@ -10,16 +10,18 @@ from .table_test_case import TableTestCase
 
 class SpacesNearSquareBracketsTest(unittest.TestCase):
     def setUp(self):
-        self.data1 = {'spaces': 7, 'no_spaces': 33}
-        self.data2 = {'spaces': 20, 'no_spaces': 80}
-        self.data3 = {'spaces': 5, 'no_spaces': 5}
+        self.data1 = {'spaces': 7, 'no_spaces': 33, 'new_lines': 0}
+        self.data2 = {'spaces': 20, 'no_spaces': 80, 'new_lines': 0}
+        self.data3 = {'spaces': 5, 'no_spaces': 5, 'new_lines': 0}
         self.spaces_near_square_brackets = metrics.SpacesNearSquareBrackets()
         self.cases = [
-            TableTestCase('a = [ "a", "b", ["c"] ]\n b = ["qwe": "asd", 1:2] \n', {'spaces': 2, 'no_spaces': 4}),
-            TableTestCase('a = [\'5\', \'6\', "asd"]', {'spaces': 0, 'no_spaces': 2}),
-            TableTestCase('while True(or not):\n while True: pass', {'spaces': 0, 'no_spaces': 0}),
-            TableTestCase('', {'spaces': 0, 'no_spaces': 0}),
-            TableTestCase('a = "[some]"', {'spaces': 0, 'no_spaces': 0}),
+            TableTestCase('a = [ "a", "b", "c" ]\n b = ["qwe": "asd", 1:2 ] \n',
+                          {'spaces': 3, 'no_spaces': 1, 'new_lines': 0}),
+            TableTestCase('a = [\'5\', \'6\', "asd"]', {'spaces': 0, 'no_spaces': 2, 'new_lines': 0}),
+            TableTestCase('while True\t[or not ] :\n while True: pass', {'spaces': 1, 'no_spaces': 1, 'new_lines': 0}),
+            TableTestCase('', {'spaces': 0, 'no_spaces': 0, 'new_lines': 0}),
+            TableTestCase('a = "[\'some]"', {'spaces': 0, 'no_spaces': 0, 'new_lines': 0}),
+            TableTestCase('a = [\n"hello": "world"\n]', {'spaces': 0, 'no_spaces': 0, 'new_lines': 1}),
         ]
 
     def test_count(self):
@@ -31,7 +33,7 @@ class SpacesNearSquareBracketsTest(unittest.TestCase):
 
     def test_discretize(self):
         result = self.spaces_near_square_brackets.discretize(self.data1)
-        self.assertEqual({'spaces': 0.175, 'no_spaces': 0.825}, result)
+        self.assertEqual({'spaces': 0.175, 'no_spaces': 0.825, 'new_lines': 0.0}, result)
 
     def test_inspect(self):
             discrete = self.spaces_near_square_brackets.discretize(self.data2)
@@ -44,12 +46,16 @@ class SpacesNearSquareBracketsTest(unittest.TestCase):
                     'count': 2,
                     'lines': [4, 5],
                 },
+                'new_lines': {
+                    'count': 3,
+                    'lines': [6, 7, 8],
+                },
             }
             inspections = self.spaces_near_square_brackets.inspect(discrete, values)
             expected = {
                 metrics.SpacesNearSquareBrackets.NEED_NO_SPACES: {
                     'message': metrics.SpacesNearSquareBrackets.inspections[metrics.SpacesNearSquareBrackets.NEED_NO_SPACES],
-                    'lines': [4, 5],
+                    'lines': [4, 5, 6, 7, 8],
                 }
             }
             self.assertEqual(expected, inspections)

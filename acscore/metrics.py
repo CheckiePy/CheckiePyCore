@@ -8,7 +8,9 @@ from .metric.spaces_near_round_brackets import SpacesNearRoundBrackets
 from .metric.spaces_near_braces import SpacesNearBraces
 from .metric.spaces_near_square_brackets import SpacesNearSquareBrackets
 from .metric.import_order import ImportOrder
-from .metric.blank_after_function import BlankAfterFunction
+from .metric.blank_before_function import BlankBeforeFunction
+from .metric.blank_before_class import BlankBeforeClass
+from .metric.blank_before_method import BlankBeforeMethod
 
 IMPLEMENTED_METRICS = [
     FileLength.__name__,
@@ -21,5 +23,7 @@ IMPLEMENTED_METRICS = [
     SpacesNearBraces.__name__,
     SpacesNearSquareBrackets.__name__,
     ImportOrder.__name__,
-    BlankAfterFunction.__name__,
+    BlankBeforeFunction.__name__,
+    BlankBeforeClass.__name__,
+    BlankBeforeMethod.__name__,
 ]

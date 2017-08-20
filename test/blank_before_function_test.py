@@ -8,9 +8,9 @@ from acscore import metrics
 from .table_test_case import TableTestCase
 
 
-class BlankAfterFunctionTest(unittest.TestCase):
+class BlankBeforeFunctionTest(unittest.TestCase):
     def setUp(self):
-        self.blank_after_function = metrics.BlankAfterFunction()
+        self.blank_before_function = metrics.BlankBeforeFunction()
         self.data = {'0': 14, '1': 11, '3+': 1}
         self.cases = [
             TableTestCase('def main:\n    pass\n\ndef a(f,b):\n    pass', {'1': 1}),
@@ -23,13 +23,13 @@ class BlankAfterFunctionTest(unittest.TestCase):
 
     def test_count(self):
         for case in self.cases:
-            with patch('acscore.metric.blank_after_function.open', mock_open(read_data=case.input)):
-                result = self.blank_after_function.count('')
+            with patch('acscore.metric.blank_before_function.open', mock_open(read_data=case.input)):
+                result = self.blank_before_function.count('')
                 self.assertEqual(case.want, result,
                                  'For input "{0}" want "{1}", but get "{2}"'.format(case.input, case.want, result))
 
     def test_discretize(self):
-        result = self.blank_after_function.discretize(self.data)
+        result = self.blank_before_function.discretize(self.data)
         expected = {
             '0': 14/26,
             '1': 11/26,
@@ -40,15 +40,15 @@ class BlankAfterFunctionTest(unittest.TestCase):
 
     def test_inspect(self):
 
-        discrete = self.blank_after_function.discretize(self.data)
-        result = self.blank_after_function.inspect(discrete, {'2': {
+        discrete = self.blank_before_function.discretize(self.data)
+        result = self.blank_before_function.inspect(discrete, {'2': {
                                                                     'count': 1,
                                                                     'lines': [1]
                                                                     }
                                                              })
         expected = {
-            metrics.BlankAfterFunction.TOO_MANY_LINES: {
-                'message': metrics.BlankAfterFunction.inspections[metrics.BlankAfterFunction.TOO_MANY_LINES],
+            metrics.BlankBeforeFunction.TOO_MANY_LINES: {
+                'message': metrics.BlankBeforeFunction.inspections[metrics.BlankBeforeFunction.TOO_MANY_LINES],
                 'lines': [1],
             }
         }

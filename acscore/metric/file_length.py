@@ -52,7 +52,6 @@ class FileLength:
     def discretize(self, values):
         discrete_values = {}
         sum = 0.0
-
         # Set initial values for each group to 0
         for group in self.discrete_groups:
             discrete_values[group['name']] = 0

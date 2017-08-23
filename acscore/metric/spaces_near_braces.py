@@ -141,7 +141,6 @@ class SpacesNearBraces:
             no_spaces = True
 
         inspections = {}
-
         # Issue messages for all braces where spaces after or before prevail (or overwise)
         if spaces:
             if file_discrete['no_spaces'] > 0.0:

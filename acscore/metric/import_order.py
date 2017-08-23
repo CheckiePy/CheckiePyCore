@@ -34,7 +34,7 @@ class ImportOrder:
                     words.append(line[7:])
             some = sorted(words)
             if some == words:
-                return {"is_sorted": 1}
+                return {"sorted": 1}
             elif imports:
                 return {"not_sorted": 1}
             else:

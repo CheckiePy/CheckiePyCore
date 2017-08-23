@@ -14,11 +14,11 @@ class ImportOrderTest(unittest.TestCase):
         self.data = {'sorted': 14, 'not_sorted': 11, 'no_imports': 1}
         self.cases = [
             TableTestCase('import a\nimport c\nimport bb\nimport ba', {'not_sorted': 1}),
-            TableTestCase('import A\nimport b\nimport c', {'is_sorted': 1}),
-            TableTestCase('from a import b\nfrom c import g', {'is_sorted': 1}),
-            TableTestCase('', {'is_sorted': 1}),
-            TableTestCase('import b\na = "import a"', {'is_sorted': 1}),
-            TableTestCase('c = 1\nb = 2', {'is_sorted': 1}),
+            TableTestCase('import A\nimport b\nimport c', {'sorted': 1}),
+            TableTestCase('from a import b\nfrom c import g', {'sorted': 1}),
+            TableTestCase('', {'sorted': 1}),
+            TableTestCase('import b\na = "import a"', {'sorted': 1}),
+            TableTestCase('c = 1\nb = 2', {'sorted': 1}),
             #TableTestCase('from a import z\nfrom c import g', {'not_sorted': 1}),
             #TableTestCase('from f import z\nfrom c import g', {'not_sorted': 1}),
         ]

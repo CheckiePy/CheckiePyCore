@@ -121,7 +121,7 @@ class NestingLoops:
     def inspect(self, discrete, values):
         inspections = {}
 
-        # Inspections for nested loops with deep from 3 to 4 (if repository contains less than 10% of such loops)
+        # Inspections for nested loops with depth from 3 to 4 (if repository contains less than 10% of such loops)
         if discrete['From3To4'] >= 0.1:
             for loop_count in values.keys():
                 if 3 <= int(loop_count) <= 4:

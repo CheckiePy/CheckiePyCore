@@ -11,24 +11,23 @@
 ### 2. Setup
 
 ```
-git clone https://github.com/acsproj/acscore.git
-cd acscore
+git clone https://github.com/CheckiePy/CheckiePyCore.git
+cd CheckiePyCore
 python3 -m venv venv
 source venv/bin/activate
-pip3 install -r requirements.txt
 ```
 
 ### 3. How to use
 
-#### 3.1. From command line
+#### 3.1. From a command line
 
-Get metrics for file or directory:
+Get metrics for a file or a directory:
 
 ```
 python3 countercli.py <path to file or directory>
 ```
 
-Get inspections for file or directory:
+Get inspections for a file or a directory:
 ```
 python3 analyzecli.py <path to file for analyze> <path to file with metrics>
 ```
@@ -47,17 +46,25 @@ python3 test.py
 
 - [x] FileLength
 - [x] FunctionNameCase
+- [x] NestingLoops
 - [x] ClassNameCase
 - [x] IndentType
-- [x] NestingLoops
+- [x] QuotesType
+- [x] SpacesNearRoundBrackets
+- [x] SpacesNearBraces
+- [x] SpacesNearSquareBrackets
+- [x] ImportOrder
+- [x] BlankBeforeFunction
+- [x] BlankBeforeClass
+- [x] BlankBeforeMethod
 
-### 5. Report format
+### 5. A report format
 
 ```
 {
     "metric_name1":
     {
-        "metric_value1": count_of_occurences,
+        "metric_value1": number_of_occurences,
         "metric_value2": ...,
         ...
     },
@@ -71,36 +78,36 @@ python3 test.py
 
 ### 6. Metric implementation notes
 
-#### 6.1. Structure
+#### 6.1. A structure
 
 Metrics should be implemented as class with three methods:
 
 ```python
 class MetricName:
-    """ Metric meaning. """
+    """ Metric's meaning. """
     def count(self, file, verbose=False):
         """
-        Method to count this metric in file.
-        Verbose flag specified if lines are needed. 
+        The method to count the metric from the 'file'.
+        The 'verbose' flag is specified when you need to get line numbers where the metric occurs. 
         """
         pass
 
     def discretize(self, values):
         """
-        Some metric may have very wide range (continuous).
-        For instance, it can be file length in lines.
-        Metric values like this should be discretized
+        Some metrics can have a very wide range (continuous).
+        For instance, it can be a file length in lines.
+        Metric's values like that should be discretized
         up to 10 different values.
         """
         pass
 
     def inspect(self, discrete, values):
         """
-        This method compares counted metrics for file
+        This method compares counted metrics for a file
         (values param) with discrete values for this
         metric (discrete param) and returns inspection
-        messages with line number of code style violation.
-        Values to this method should be passed in verbose
+        messages with line numbers of code style violations.
+        Values should be passed to this method in verbose
         format.
         """
         pass
@@ -108,25 +115,25 @@ class MetricName:
 
 #### 6.2. Placing
 
-* Metric class should be placed in separate file under metric directory.
+* Metric's class should be placed in a separate file under the metric directory.
 
-* Class name of implemented metric should be registered in IMPLEMENTED_METRICS dictionary in metrics.py.
+* A class name of implemented metric should be registered in IMPLEMENTED_METRICS dictionary in metrics.py.
 
 #### 6.3. Output
 
-##### 6.3.1. Count method
+##### 6.3.1. The 'count' method
 
-* Count method should return an output in next format (non verbose):
+* The 'count' method should return an output in the next format (non verbose):
 
 ```
 {
-    "metric_value1": count_of_occurences,
+    "metric_value1": number_of_occurences,
     "metric_value2": ...,
     ...
 }
 ```
 
-and in verbose format:
+and in the verbose format:
 ```
 {
     "metric_value1":
@@ -139,19 +146,19 @@ and in verbose format:
 }
 ```
 
-##### 6.3.2. Discretize method
+##### 6.3.2. The 'discretize' method
 
 ```
 {
-    "metric_value1": percent_in_float_format,
+    "metric_value1": percent_in_a_float_format,
     "metric_value2": ...,
     ...
 }
 ```
 
-For example 10% in float format is 0.1.
+For example, 10% is 0.1 in the float format.
 
-##### 6.3.3. Inspect method
+##### 6.3.3. The 'inspect' method
 
 ```
 {
@@ -165,14 +172,8 @@ For example 10% in float format is 0.1.
 }
 ```
 
-If inspection isn't applicable to some line then "lines" property should be omitted.
+If inspection isn't applicable to some line then 'lines' property should be omitted.
 
 # License
 
-The MIT License (MIT) Copyright (c) 2017 Artem Ustimov, Marina Belyanova
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+[MIT](/LICENSE)
